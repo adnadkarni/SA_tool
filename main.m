@@ -27,7 +27,7 @@ addpath(genpath('/home/aditya/Dropbox/SA_tool/Historian_mining/plot_functions'))
 
 global db_select;
 global db;
-db_select = 7;
+db_select = 6;
  [ db ] = read_db( db_select );
 
 %% Preprocessing, setup and parameter input
