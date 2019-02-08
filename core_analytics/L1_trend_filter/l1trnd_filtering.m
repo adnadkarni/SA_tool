@@ -19,7 +19,10 @@ for count = Yi.win_sz:Yi.nsamp_slide:Yi.ds_sz %Yi.win_sz
     
     % Run course prediction------------------------------------------------
     if ~isempty(Yo{numWin}.X)
-        [Yext] = extrapolateTrend(Yo{numWin}, Ye{numWin});
+        [Yext.selectTsForExp{numWin}] = triggerExt(Ye{numWin}); % select time series to be extrapolated
+%         if sum(selectTsForExp) ~= 0
+%             [Yext{numWin}] = extrapolateTrend(Yo{numWin}, Ye{numWin}, selectTsForExp{numWin}); % extrapolate trends if trigger is set
+%         end
     end
     
     numWin = numWin + 1;

@@ -54,7 +54,7 @@ for hr = 1:size(eval(sprintf('db.%s',typeVar{selectVar})),2)
     % Run trend filtering--------------------------------------------------    
     if Yp.tf_status
         % Perform trend filtering to return statistics
-        [ Ytr{hr}, Yst{hr}, Yest{hr} ] = l1trnd_filtering( Yi, Yp);
+        [ Ytr{hr}, Yst{hr}, Yext{hr} ] = l1trnd_filtering( Yi, Yp);
     else
         Yst{hr} = [];
     end
