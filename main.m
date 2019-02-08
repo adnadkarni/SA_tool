@@ -3,16 +3,16 @@ clc
 
 %% Add paths
 %1) Reading and data preproecessing
-addpath(genpath('/home/aditya/Dropbox/SA_tool/Historian_mining/data_preparation/'));
-addpath(genpath('/home/aditya/Dropbox/SA_tool/Historian_mining/auxiliary_functions'));
+addpath(genpath('/home/aditya/Desktop/SA_tool/data_preparation/'));
+addpath(genpath('/home/aditya/Desktop/SA_tool/auxiliary_functions'));
 %2) T&L filter parameters and submodules
-addpath(genpath('/home/aditya/Dropbox/SA_tool/Historian_mining/core_analytics/'));
+addpath(genpath('/home/aditya/Desktop/SA_tool/core_analytics/'));
 %3) Output statistics and event-detection
-addpath(genpath('/home/aditya/Dropbox/SA_tool/Historian_mining/output_statistics'));
+addpath(genpath('/home/aditya/Desktop/SA_tool/output_statistics'));
 %4) Course prediction of select time series
-addpath(genpath('/home/aditya/Dropbox/SA_tool/Historian_mining/course_prediction'));
+addpath(genpath('/home/aditya/Desktop/SA_tool/course_prediction'));
 %5) Various plot functions
-addpath(genpath('/home/aditya/Dropbox/SA_tool/Historian_mining/plot_functions'));
+addpath(genpath('/home/aditya/Desktop/SA_tool/plot_functions'));
 
 %% Select and read dataset
 % 1 - PGCIL 10bus
@@ -27,7 +27,7 @@ addpath(genpath('/home/aditya/Dropbox/SA_tool/Historian_mining/plot_functions'))
 
 global db_select;
 global db;
-db_select = 7;
+db_select = 8;
  [ db ] = read_db( db_select );
 
 %% Preprocessing, setup and parameter input
@@ -54,7 +54,7 @@ for hr = 1:size(eval(sprintf('db.%s',typeVar{selectVar})),2)
     % Run trend filtering--------------------------------------------------    
     if Yp.tf_status
         % Perform trend filtering to return statistics
-        [ Ytr{hr}, Yst{hr} ] = l1trnd_filtering( Yi, Yp);
+        [ Ytr{hr}, Yst{hr}, Yest{hr} ] = l1trnd_filtering( Yi, Yp);
     else
         Yst{hr} = [];
     end
