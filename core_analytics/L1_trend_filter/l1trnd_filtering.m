@@ -19,10 +19,15 @@ for count = Yi.win_sz:Yi.nsamp_slide:Yi.ds_sz %Yi.win_sz
     
     % Run course prediction------------------------------------------------
     if ~isempty(Yo{numWin}.X)
-        [Yext.selectTsForExp{numWin}] = triggerExt(Ye{numWin}); % select time series to be extrapolated
-%         if sum(selectTsForExp) ~= 0
-%             [Yext{numWin}] = extrapolateTrend(Yo{numWin}, Ye{numWin}, selectTsForExp{numWin}); % extrapolate trends if trigger is set
-%         end
+        [selectTsForExp] = triggerExt(Ye{numWin}); % select time series to be extrapolated
+        if sum(selectTsForExp) ~= 0
+            [Yext{numWin}] = extrapolateTrend(Yo{numWin}, Ye{numWin}, selectTsForExp); % extrapolate trends if trigger is set
+            if numWin <= 100
+                writetable(Yext{numWin}.cpTab,'expResults.xlsx', 'Sheet',numWin);
+            end
+        else 
+%            warning('All time series are bad');
+        end
     end
     
     numWin = numWin + 1;

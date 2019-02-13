@@ -31,22 +31,22 @@ db_select = 8;
  [ db ] = read_db( db_select );
 
 %% Preprocessing, setup and parameter input
-typeVar = {'Vm', 'Va', 'Im', 'Ia', 'fr', 'P', 'Q', 'Pg', 'Qg', 'tap'};
+Yp.typeVar = {'Vm', 'Va', 'Im', 'Ia', 'fr', 'P', 'Q', 'Pg', 'Qg', 'tap'};
 var_db = {5,6,6,6,6,6,9,6,5};
 selectVar = var_db{db_select};
 
 run_lev = 0;
 
 % Filter parameters--------------------------------------------------------
-[Yp] = input_filter_para();
+[Yp] = input_filter_para(Yp);
 
 %% Execute the tool functions
 
-for hr = 1:size(eval(sprintf('db.%s',typeVar{selectVar})),2)
+for hr = 1:size(eval(sprintf('db.%s',Yp.typeVar{selectVar})),2)
     
     % Get hourly data, downsample and update the
     % parameters-----------------------------------------------------------
-    [ Yi, Yp ] = makeY( eval(sprintf('db.%s(:,hr)',typeVar{selectVar})), db.pmu_name, selectVar, Yp );
+    [ Yi, Yp ] = makeY( eval(sprintf('db.%s(:,hr)',Yp.typeVar{selectVar})), db.pmu_name, selectVar, Yp );
       
     % Missing data scan----------------------------------------------------
     [ Yp, Ydl ] = missing_scan( Yi, Yp, selectVar );

@@ -1,4 +1,4 @@
-function [y] = input_filter_para()
+function [y] = input_filter_para(y)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 

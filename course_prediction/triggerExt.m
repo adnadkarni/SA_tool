@@ -7,8 +7,10 @@ function [M2] = triggerExt(M1)
 % trigger criterion 1
 % If the trend magnitude of the last trend segment is greater than 1 and
 % the trend duration of that segment is more than 1 minute
-selectTsForExp = abs(M1.trnd_mag(end,:))>= 1 & M1.trnd_seg_duration(end) >= 60;
 
-M2 = selectTsForExp; 
+M2 = abs(M1.trnd_mag(end,:))>= 1 & M1.trnd_seg_duration(end) >= 60;
+%M2 = abs(M1.trnd_mag(end,:)/60)>= 0.5 & M1.trnd_seg_duration(end) >= 2;
+%abs(M1.trnd_mag(end,:))
+ 
 end
 

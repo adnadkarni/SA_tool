@@ -34,7 +34,7 @@ switch db_select
         
     case 9
         pth = '/media/aditya/Data/PMU_Data/GETCO_freq';
-        [db] = read_wafms(pth, 'event1.csv');
+        [db] = read_wafms(pth, 'event51.csv');
         
 end
 end
