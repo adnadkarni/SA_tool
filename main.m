@@ -27,7 +27,7 @@ addpath(genpath('/home/aditya/Desktop/SA_tool/plot_functions'));
 
 global db_select;
 global db;
-db_select = 8;
+db_select = 9;
  [ db ] = read_db( db_select );
 
 %% Preprocessing, setup and parameter input
