@@ -1,4 +1,4 @@
-function [outputArg1] = detect_outlier(u)
+function [outputArg1] = detectOutlier(u)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 

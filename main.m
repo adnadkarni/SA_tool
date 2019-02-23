@@ -1,6 +1,7 @@
 clearvars -except db
 clc
 
+%cd('/home/aditya/Desktop/SA_tool/');
 %% Add paths
 %1) Reading and data preproecessing
 addpath(genpath('/home/aditya/Desktop/SA_tool/data_preparation/'));
@@ -25,36 +26,34 @@ addpath(genpath('/home/aditya/Desktop/SA_tool/plot_functions'));
 % 8 - Adani400
 % 9 - WAFMS
 
-global db_select;
+global selectDB;
 global db;
-db_select = 9;
- [ db ] = read_db( db_select );
+selectDB = 1;
 
-%% Preprocessing, setup and parameter input
-Yp.typeVar = {'Vm', 'Va', 'Im', 'Ia', 'fr', 'P', 'Q', 'Pg', 'Qg', 'tap'};
-var_db = {5,6,6,6,6,6,9,6,5};
-selectVar = var_db{db_select};
+% read dataset
+% [ db ] = read_db( selectDB );
 
-run_lev = 0;
+%% Parameter input
 
-% Filter parameters--------------------------------------------------------
-[Yp] = input_filter_para(Yp);
+[yPara] = getFilterPara();
 
-%% Execute the tool functions
+%% Execute the tool
+dataIn = eval(sprintf('db.%s',yPara.typeVar{yPara.selectVar}));
 
-for hr = 1:size(eval(sprintf('db.%s',Yp.typeVar{selectVar})),2)
+for hr = 1:size(dataIn,2)
     
-    % Get hourly data, downsample and update the
-    % parameters-----------------------------------------------------------
-    [ Yi, Yp ] = makeY( eval(sprintf('db.%s(:,hr)',Yp.typeVar{selectVar})), db.pmu_name, selectVar, Yp );
+    % Get hourly data, downsample and update the parameters ---------------
+    
+    [ yData, yPara ] = makeData( yPara, hr );
       
     % Missing data scan----------------------------------------------------
-    [ Yp, Ydl ] = missing_scan( Yi, Yp, selectVar );
     
-    % Run trend filtering--------------------------------------------------    
-    if Yp.tf_status
-        % Perform trend filtering to return statistics
-        [ Ytr{hr}, Yst{hr}, Yext{hr} ] = l1trnd_filtering( Yi, Yp);
+    [ yPara, yDataloss ] = scanDataloss( yData, yPara);
+    
+    % Run trend filtering--------------------------------------------------
+    
+    if (yPara.statusTF)
+        [ Ytr{hr}, Yst{hr}, Yext{hr} ] = l1trnd_filtering( yData, yPara);
     else
         Yst{hr} = [];
     end

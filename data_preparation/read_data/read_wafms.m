@@ -13,11 +13,11 @@ db.tstmp = gps2utc(fdata(:,1));
 
 
 % plot dataset
-figure(1)
-subplot(2,1,1)
-cellPlot(db.tstmp, db.fr);
-subplot(2,1,2)
-[db.fr] = outlier2Nan(db.fr, 45);
-cellPlot(db.tstmp, db.fr);
+% figure(1)
+% subplot(2,1,1)
+% cellPlot(db.tstmp, db.fr);
+% subplot(2,1,2)
+% [db.fr] = outlier2Nan(db.fr, 45);
+% cellPlot(db.tstmp, db.fr);
 end
 

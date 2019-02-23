@@ -1,4 +1,4 @@
-function [ y ] = missing_diagnostics_by_3ph( x,tp )
+function [ y ] = datalossBy3ph( x,tp )
 %UNTITLED3 Summary of this function goes here
 %   Detailed explanation goes here
 
