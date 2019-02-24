@@ -31,7 +31,7 @@ global db;
 selectDB = 1;
 
 % read dataset
-% [ db ] = read_db( selectDB );
+ [ db ] = read_db( selectDB );
 
 %% Parameter input
 
