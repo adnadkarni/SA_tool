@@ -42,7 +42,7 @@ y.numSecSlide = in(8);                                                     % sli
  
 %% Select time-series to be filtered
 
-selectTs{1} = [30:40];%[1:size(db.pmu_name,1)];                             % for PGCIL 10 bus;
+selectTs{1} = [133:140];%[30:40];%[1:size(db.pmu_name,1)];                             % for PGCIL 10 bus;
 selectTs{9} = [1:6];                                                        % for frequency data
 selectTs{8} = [3:8];                                                        % for adani400
 

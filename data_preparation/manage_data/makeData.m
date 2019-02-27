@@ -43,9 +43,11 @@ for i=1:numPMU
 end
 
 yOut.namePMU = yOut.namePMU';
+yOut.indexTime = db.time(1:Yp.numSampPerHour,1);
 
 %% Downsample dataset and update the parameters
 yOut.val = downsample(yOut.val,Yp.rateDownsample);                          % downsample data
+yOut.indexTime = downsample(yOut.indexTime,Yp.rateDownsample);              % downsample timestamps
 Yp.numSampDataset = size(yOut.val,1);                                       % get new size of dataset
 Yp.rateFrame = Yp.rateFrame*Yp.rateDownsample;                              % get new rate of frame
 Yp.durOfDataset = Yp.numSampDataset*Yp.rateFrame;                           % get new duration of dataset

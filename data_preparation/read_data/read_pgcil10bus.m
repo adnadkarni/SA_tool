@@ -61,6 +61,10 @@ for i=1:size(fileList,1)%[101,113,213]
             db.dfdt{i,1}(:,1) = eval(str);
         end
     end
+    
+    if (i == size(fileList,1))
+        db.time = gps2utc( t );
+    end
     clearvars -except fileList i db
     i
 end

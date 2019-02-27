@@ -14,6 +14,7 @@ addpath(genpath('/home/aditya/Desktop/SA_tool/output_statistics'));
 addpath(genpath('/home/aditya/Desktop/SA_tool/course_prediction'));
 %5) Various plot functions
 addpath(genpath('/home/aditya/Desktop/SA_tool/plot_functions'));
+%6) 
 
 %% Select and read dataset
 % 1 - PGCIL 10bus
@@ -31,7 +32,7 @@ global db;
 selectDB = 1;
 
 % read dataset
- [ db ] = read_db( selectDB );
+[ db ] = read_db( selectDB );
 
 %% Parameter input
 
@@ -50,60 +51,34 @@ for hr = 1:size(dataIn,2)
     
     [ yPara, yDataloss ] = scanDataloss( yData, yPara);
     
-    % Run trend filtering--------------------------------------------------
+    % Run T&L filtering----------------------------------------------------
     
     if (yPara.statusTF)
-        [ Ytr{hr}, Yst{hr}, Yext{hr} ] = l1trnd_filtering( yData, yPara);
-    else
-        Yst{hr} = [];
+        
+        [ yTnL{hr}, yStat{hr}, yExtr{hr} ] = TnLFilterScheme( yData, yPara);
+        
     end
     
-    % Run level filtering--------------------------------------------------
-%     if run_lev==1
-%         % Perform level filtering to return statistics
-%         [ Ylv{hr}, Ylv{hr} ] = l1level_filtering( Yi, Yi_lev, ts_indx, var_select );
-%     else
-%         Ylv{hr} = [];
-%     end
+    %% Get mining results for the hour
+    
+    [gatherStat] = collectResults(yStat);
+    
+    %% Get signature thresholds
+
+    [thrMine] = getThr4Mine(1);
+
+    %% Get all mining results
+   
+    [resultsTr] = getMiningResultsTr(gatherStat, thrMine);                  % trend
+    
+    [resultsSpk] = getMiningResultsSpk(gatherStat, thrMine);                % spike
+    
+%     [resultsLev] = getMiningResultsLev(gatherStat, thrMine);                % level
+
+    
+    %% Plot the results for dashboard
+    
+    plotResMineAll(yData, yPara, resultsTr, resultsSpk);
     
 end
-
-%% aggregate calculated indicators
-[results] = collect_output(Ytr, Yst);
-
-
-%% Detection logic I - trend change
-% plot attributes----------------------------------------------------------
-plotInput_trnd = {'V_{mag}', 'I_{mag}', 'V_{ang}', 'I_{ang}', 'Frequency', 'MW-flow',...
-    'MVar-flow', 'MW-gen', 'MVar-gen', 'taps';
-    'kV', 'Amps', 'Deg', 'Deg', 'Hz', 'MW', 'MVar', 'MW', 'MVar', 'Int';
-    '', '', '', '', 'df/dt', 'MW-ramp', 'MVar-ramp', '', '', '';
-    'kV/min', 'Amps/min', 'deg/min', 'deg/min', 'mHz/sec', 'MW/min', 'MVar/min', '', '', '';
-    '', '', '', '', 1e3/60, 1, '', '', '', '';
-    '', '', '', '', 1, 1, '', '', '', '';
-    '', '', '', '', 5, 1.7, '', '', '', '';
-    '', '', '', '', -5, -1.7, '', '', '', ''};
-% detection function
-[Etr] = trnd_event_detect(results, Ytr, Yst, plotInput_trnd(:,selectVar));
-
-%% Detection logic II - spike ----------------------------------------
-plotInput_spk = {'V_{mag}', 'I_{mag}', 'V_{ang}', 'I_{ang}', 'Frequency', 'MW-flow',...
-    'MVar-flow', 'MW-gen', 'MVar-gen', 'taps';
-    'kV', 'Amps', 'Deg', 'Deg', 'Hz', 'MW', 'MVar', 'MW', 'MVar', 'Int';
-    '', '', '', '', 'df/dt', 'MW-ramp', 'MVar-ramp', '', '', '';
-    'kV/min', 'Amps/min', 'deg/min', 'deg/min', 'mHz/sec', 'MW/min', 'MVar/min', '', '', '';
-    '', '', '', '', 1e3, 1, '', '', '', '';
-    '', '', '', '', 1, -1, '', '', '', '';
-    '', '', '', '', 5, 10, '', '', '', '';
-    '', '', '', '', -5, -10, '', '', '', ''};
-% detection function
-[Espk] = spk_event_detect(results, Ytr, Yst, plotInput_spk(:,selectVar));
-
-%% Dashboard
-eventStatus = zeros(size(results.win_st,1),3);  % event status of each window
-eventStatus(Etr.susp_win,1) = 1;
-eventStatus(Espk.suspWin,3) = 1;
-
-figure(3)
-bar(eventStatus);
 
