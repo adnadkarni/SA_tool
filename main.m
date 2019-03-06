@@ -32,7 +32,7 @@ global db;
 selectDB = 1;
 
 % read dataset
-%[ db ] = read_db( selectDB );
+% [ db ] = read_db( selectDB );
 
 %% Parameter input
 
@@ -55,7 +55,7 @@ for hr = 1:size(dataIn,2)
     
     if (yPara.statusTF)
         
-        [ yTnL{hr}, yStat{hr}, yExtr{hr} ] = TnLFilterScheme( yData, yPara);
+        [ yTnL{hr}, yStat{hr}, yCP{hr} ] = TnLFilterScheme( yData, yPara);
         
     end
     

@@ -1,10 +1,11 @@
-function [ yTnL, yStat, yPred ] = TnLFilterScheme( yData, yPara )
+function [ yTnL, yStat, yCP ] = TnLFilterScheme( yData, yPara )
 %This function executes various trend filtering functions and returns
 %various trend statistics.
 
 %% preparation
 numWin = 1;
 yTnL = cell(1,1);
+CPPara = getCPPara(yPara);                                              % get course prediction thresholds
 
 %% scan with sliding window
 
@@ -16,9 +17,9 @@ for count = yPara.numSampWin:yPara.numSampSlide:yPara.numSampDataset%Yi.win_sz
     yTnL{numWin}.durOfWin = (yPara.numSampWin)*(yPara.rateFrame);           % duration of window
     
     yTnL{numWin}.val = yData.val(yTnL{numWin}.indexWin, yPara.selectTS);    % extract data for the window
-                                                            
+    
     yTnL{numWin}.indexTime = yData.indexTime...
-                                    (count-yPara.numSampWin+1:count);       % assign time stamps for window data
+        (count-yPara.numSampWin+1:count);       % assign time stamps for window data
     
     yTnL{numWin}.nameTS = yData.namePMU(yPara.selectTS);
     
@@ -27,7 +28,7 @@ for count = yPara.numSampWin:yPara.numSampSlide:yPara.numSampDataset%Yi.win_sz
     [ yTnL{numWin} ] = scaleData(yTnL{numWin});                             % scale data (normalize)
     
     [ yTnL{numWin} ] = TnLFilter(yTnL{numWin}, yPara.lambda, yPara.mu);     % trend filter function
-        
+    
     [ yTnL{numWin} ] = rescaleData(yTnL{numWin}, yPara.rateFrame);          % rescale data
     
     %% Calculate trend statistics
@@ -36,13 +37,20 @@ for count = yPara.numSampWin:yPara.numSampSlide:yPara.numSampDataset%Yi.win_sz
     
     %% Run course prediction-----------------------------------------------
     
-    yParaExtp = getExtpPara();                                              % get thresholds
-    
-    if (~isempty(yTnL{numWin}.X))
+    if (~isempty(yTnL{numWin}.X))                                           % wait for 3 samples to ascertain trend
         
-        [yPred{numWin}] = trendExtrapolate(yTnL{numWin},...
-            yStat{numWin}, yParaExtp);                                      % extrapolate trends if trigger is set
-        
+        [yCP{numWin}.selectTS, flagCP(numWin,1)]...
+                                  = checkCP(yStat{numWin}, CPPara);         % get the trend status for prediction start
+                 
+        if (numWin >= 3)
+            
+            if (sum(flagCP(numWin-2:numWin)) == 3)
+                
+                [yCP{numWin}] = runCP(yTnL{numWin}, yStat{numWin},...
+                                                   yCP{numWin}, CPPara);    % extrapolate trends if trigger is set
+            
+            end           
+        end       
     end
     
     %% End of trend filtering
