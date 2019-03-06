@@ -81,6 +81,8 @@ end
 
 changePtsLevel = unique(indexLevelChng);
 
+yOut.indexTimeLevelChange = yIn.indexTime(changePtsLevel+1);                % time of level change
+
 yOut.indexEndOfLevelSeg = [1;changePtsLevel+1;yPara.numSampWin];            % store ends of trend segment
 
 % Identify level magnitude and duration
@@ -92,7 +94,8 @@ yOut.durLevelSeg = (lengthLevelSeg)*(yPara.rateFrame);                      % du
 
 yOut.magLevel = yIn.W(yOut.indexEndOfLevelSeg(2:end),:);                    % unit/min , Fx is already in per second
 
-yOut.changeLevel = yIn.Fw(changePtsLevel,:);                                % level change in units
+yOut.magLevelChange = yIn.Fw(changePtsLevel,:);                             % level change in units
+
 
 %% Calculate residual statistics
 

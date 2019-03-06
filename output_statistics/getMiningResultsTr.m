@@ -3,6 +3,8 @@
 
 function [yOut] = getMiningResultsTr (yIn, thrIn)
 
+numTS = size(yIn.lastSegTrend,2);
+
 for i=1:size(yIn.lastSegTrend,1)
     
     yOut.indexEndTime(i,1) = yIn.indexEndTime(i);                           % window end time of current segment
@@ -23,8 +25,8 @@ for i=1:size(yIn.lastSegTrend,1)
         yOut.durLastSegTrend(i,1) = durSeg;
     else
         yOut.statusLastSegTrend(i,1) = 0;
-        yOut.lastSegTrend(i,1) = nan;
-        yOut.wtdAtInstTrend(i,1) = nan;
+        yOut.lastSegTrend(i,:) = nan*ones(1,numTS);
+        yOut.wtdAtInstTrend(i,:) = nan*ones(1,numTS);
         yOut.durLastSegTrend(i,1) = nan;
     end
     

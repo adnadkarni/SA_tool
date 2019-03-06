@@ -17,28 +17,40 @@ for i=1:length(ySt)
         if (~isempty(ySt{i}{j}.magSpikeZmod))
             
             tDiff = ySt{i}{j}.indexEndTime - ySt{i}{j}.indexTimeSpikeZmod;  % how much long ago the spikes were detected
-            indexOldSpike = find(tDiff > seconds(3));                       % get spikes which are already detected
-            ySt{i}{j}.magSpikeZmod(indexOldSpike,:) = [];                   % remove already detected spike record
+            ySt{i}{j}.magSpikeZmod(tDiff > seconds(3),:) = [];                   % remove already detected spike record
             
             if (~isempty(ySt{i}{j}.magSpikeZmod))
                 [yOut.maxSpike(j,:)] =...
-                                        findMaxAbs(ySt{i}{j}.magSpikeZmod);
+                    findMaxAbs(ySt{i}{j}.magSpikeZmod);
             else
                 yOut.maxSpike(j,:) = 0;
-                yOut.indexMaxSpike(j,:) = 0;
+%                yOut.indexMaxSpike(j,:) = 0;
             end
         else
             yOut.maxSpike(j,:) = 0;
-            yOut.indexMaxSpike(j,:) = 0;
+%            yOut.indexMaxSpike(j,:) = 0;
         end
         
         %% Level statistics
         yOut.lastSegLevel(j,:) = ySt{i}{j}.magLevel(end,:);
-        yOut.durLastSegLevel(j,:) = ySt{i}{j}.durLevelSeg(end,:);
-        if (~isempty(ySt{i}{j}.changeLevel))
-            yOut.maxChangeLevel(j,:) = findMaxAbs(ySt{i}{j}.changeLevel);
-        else 
-            yOut.maxChangeLevel(j,:) = 0;
+        
+        yOut.durLastSegLevel(j,:) = ySt{i}{j}.durLevelSeg(end,:);           % duration of last seg in seconds
+        
+        if (~isempty(ySt{i}{j}.magLevelChange))
+            
+            tDiff = ySt{i}{j}.indexEndTime - ...
+                                         ySt{i}{j}.indexTimeLevelChange;    % how much long ago the spikes were detected
+            ySt{i}{j}.magLevelChange(tDiff > minutes(3),:) = [];            % remove already detected spike record
+            
+            if (~isempty(ySt{i}{j}.magLevelChange))
+                yOut.maxLevelChange(j,:) = ...
+                                    findMaxAbs(ySt{i}{j}.magLevelChange);
+            else
+                yOut.maxLevelChange(j,:) = 0;
+            end
+            
+        else
+            yOut.maxLevelChange(j,:) = 0;
         end
     end
 end

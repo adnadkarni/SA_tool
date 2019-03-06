@@ -22,10 +22,10 @@ dims = [1 55];
 
 %% default input
 
-defInput{1} = {'1', '0.04', '25',   '5' , '100' , '1000', '22000', '5' };  % pgcil trend
+defInput{1} = {'1', '0.04', '25',   '5' , '100' , '100', '22000', '5' };  % pgcil trend
 defInput{7} = {'1', '0.04', '1',   '1/120' , '100' , '100', '7500', '5' };  % pgcil trend
-defInput{8} = {'1', '0.04', '125', '15' , '250' , '1000', '86800', '60' };  % getco trend
-defInput{9} = {'1', '0.02', '2'  , '0.5', '1000', '1000', '13800', '2' };   % wafms
+defInput{8} = {'1', '0.04', '125', '15' , '250' , '100', '86800', '60' };  % getco trend
+defInput{9} = {'1', '0.02', '2'  , '0.5', '1000', '100', '13800', '2' };   % wafms
 
 in = str2double(inputdlg(prompt,title,dims,defInput{selectDB}));
 

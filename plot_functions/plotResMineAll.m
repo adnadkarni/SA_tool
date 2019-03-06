@@ -1,4 +1,4 @@
-function plotResMineAll(yIn1, yIn2, yIn3, yIn4)
+function plotResMineAll(yIn1, yIn2, yIn3, yIn4, yIn5)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -67,5 +67,26 @@ para.barwidth = 0.4;
 para.xticks = yIn1.indexTime([1:200:size(yIn1.val,1)]);
 para.yticks = unique(yIn4.statusSpike);
 setPlotPara(para, pl3)
+
+%%
 subplot(2,3,6)
+pl4 = bar(yIn5.indexEndTime, yIn5.statusLevelChange, 'k');
+grid on;
+
+para.LineWidth = 2;
+para.FontSize = 11;
+para.LineSpec = [];
+para.MarkerIndices = [1:10:size(yIn1.val,1)];
+para.ylim = [0 2];
+para.xlim = [];
+para.xlabel = 'time (hh:mm:ss)';
+para.ylabel = 'status (Spike)';
+%para.position = [0.3 0.11 0.46 0.35];
+para.xticks = [1:10:size(yIn1.val,1)];
+para.facecolor = [0 0 0];
+para.barwidth = 0.4;
+para.xticks = yIn1.indexTime([1:200:size(yIn1.val,1)]);
+para.yticks = unique(yIn5.statusLevelChange);
+setPlotPara(para, pl4)
+
 end

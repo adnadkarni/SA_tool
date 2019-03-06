@@ -32,7 +32,7 @@ global db;
 selectDB = 1;
 
 % read dataset
-[ db ] = read_db( selectDB );
+%[ db ] = read_db( selectDB );
 
 %% Parameter input
 
@@ -73,12 +73,12 @@ for hr = 1:size(dataIn,2)
     
     [resultsSpk] = getMiningResultsSpk(gatherStat, thrMine);                % spike
     
-%     [resultsLev] = getMiningResultsLev(gatherStat, thrMine);                % level
+    [resultsLev] = getMiningResultsLev(gatherStat, thrMine);                % level
 
     
     %% Plot the results for dashboard
     
-    plotResMineAll(yData, yPara, resultsTr, resultsSpk);
+    plotResMineAll(yData, yPara, resultsTr, resultsSpk, resultsLev);
     
 end
 
