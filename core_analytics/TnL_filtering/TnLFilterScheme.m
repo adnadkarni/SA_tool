@@ -49,9 +49,8 @@ for count = yPara.numSampWin:yPara.numSampSlide:yPara.numSampDataset%Yi.win_sz
     
     numWin = numWin + 1;
     compl_status = 100*count/(yPara.numSampDataset);
-    sprintf('Trend filtering completion = %2.1f',compl_status)
+    sprintf('%2.1f completed',floor(compl_status))
 end
-
 
 %% extra
 %             if numWin <= 100

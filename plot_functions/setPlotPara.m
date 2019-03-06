@@ -7,7 +7,9 @@ for i=1:numLines
 end
 
 ax = gca;
-%ax.Position = para.position;
+if ~isempty(para.position)
+    ax.Position = para.position;
+end
 ax.FontSize = para.FontSize;
 xlabel(para.xlabel);
 ylabel(para.ylabel);
@@ -28,6 +30,10 @@ end
 
 xticks(ax,para.xticks);
 yticks(ax,para.yticks);
+
+if ~isempty(para.TSnames)
+    legend(para.TSnames, 'FontSize' , 8, 'Position', [0.82 0.63 0.15 0.25]);
+end
 
 end
 
