@@ -1,0 +1,6 @@
+Sets
+LTCf /B14/
+LTCt /B15/
+LTC(LTCf,LTCt)  /B14.B15,B15.B14/
+;
+display LTC;

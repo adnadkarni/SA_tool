@@ -5,6 +5,7 @@ function [ yTnL, yStat, yCP ] = TnLFilterScheme( yData, yPara )
 %% preparation
 numWin = 1;
 yTnL = cell(1,1);
+statusCP = 0;
 CPPara = getCPPara(yPara);                                              % get course prediction thresholds
 
 %% scan with sliding window
@@ -33,11 +34,11 @@ for count = yPara.numSampWin:yPara.numSampSlide:yPara.numSampDataset%Yi.win_sz
     
     %% Calculate trend statistics
     
-    [ yStat{numWin} ] = TnLStatistics( yTnL{numWin}, yPara );
+    [ yStat{numWin}, yTnL{numWin} ] = TnLStatistics( yTnL{numWin}, yPara );
     
     %% Run course prediction-----------------------------------------------
     
-    if (~isempty(yTnL{numWin}.X))                                           % wait for 3 samples to ascertain trend
+    if (~isempty(yTnL{numWin}.X) && statusCP)                               % wait for 3 samples to ascertain trend
         
         [yCP{numWin}.selectTS, flagCP(numWin,1)]...
                                   = checkCP(yStat{numWin}, CPPara);         % get the trend status for prediction start
@@ -50,7 +51,9 @@ for count = yPara.numSampWin:yPara.numSampSlide:yPara.numSampDataset%Yi.win_sz
                                                    yCP{numWin}, CPPara);    % extrapolate trends if trigger is set
             
             end           
-        end       
+        end
+    else
+        yCP{numWin} = [];
     end
     
     %% End of trend filtering

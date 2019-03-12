@@ -18,14 +18,14 @@ for count = 1:num_pmu
                 fld_name2 = strcat('/EXPORT-PMUs-','201709',sprintf('%02d%02d0000', i, hr_num),...
                     '-','201709',sprintf('%02d%02d0000', i, hr_num+1),'-CSV/');
                 
-                fle_name = strcat(num2str(pmu_num),'-','201709',sprintf('%02d%02d0000', i, hr_num),...
+                fle_name = strcat(num2str(pmu_num(count)),'-','201709',sprintf('%02d%02d0000', i, hr_num),...
                     '-','201709',sprintf('%02d%02d0000', i, hr_num+1),'.csv');
                 
             else
                 fld_name2 = strcat('/EXPORT-PMUs-','201709',sprintf('%02d%02d0000', i, hr_num),...
                     '-','201709',sprintf('%02d%02d0000', i+1, 0),'-CSV/');
                 
-                fle_name = strcat(num2str(pmu_num),'-','201709',sprintf('%02d%02d0000', i, hr_num),...
+                fle_name = strcat(num2str(pmu_num(count)),'-','201709',sprintf('%02d%02d0000', i, hr_num),...
                     '-','201709',sprintf('%02d%02d0000', i+1, 0),'.csv');
             end
             
@@ -38,7 +38,8 @@ for count = 1:num_pmu
             db.Ia{count,hr_num+1} = angle_correction_dbserver (data_hr(:,[13,15,17,19]));
             db.P{count,hr_num+1} = data_hr(:,20);
             db.Q{count,hr_num+1} = data_hr(:,21);
-            db.fr{count,hr_num+1} = data_hr(:,2);
+            db.fr{count,hr_num+1} = data_hr(:,2);      
+            db.time(:,hr_num+1) = duration(hr_num,0,0:0.04:3600-0.04)';
         end 
     end
     db.pmu_name{count} = num2str(pmu_num(count));

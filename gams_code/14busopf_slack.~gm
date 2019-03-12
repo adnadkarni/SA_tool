@@ -1,0 +1,254 @@
+$set matout "'matsol.gdx', model_status,solver_status,Vmag,Vr,Vi,Pg,Qg,Pl,Ql,Bsvc,eMVA_max,Pflow,sv_max,sv_min,spg_max,spg_min,sqg_max,sqg_min,spl_max,sbsvc_max,sbsvc_min,lamda";
+
+Sets
+BI, GI(BI), LI(BI), PVI(GI), NGI(BI), SVCI(BI), BrI, LTCI(BI)
+;
+
+$GDXIN mat2gms_sets.gdx
+$LOAD BI,GI,LI,PVI,SVCI,LTCI
+$GDXOUT
+
+Sets
+LTCfI(LTCI) /B14/
+LTCtI(LTCI) /B15/
+LTCf /B14.B14/
+LTCt /B15.B15/
+LTCft /B14.B15,B15.B14/
+;
+
+NGI(BI) = not GI(BI);
+Alias(BI,m);
+Alias(LTCI,k);
+
+************************************************************************************************************************************
+************************************************************************************************************************************
+* Importing input data
+
+Parameter G(BI,m), B(BI,m);
+$GDXIN mat2gms_Ybus.gdx
+$LOAD G,B
+$GDXOUT
+
+Parameter busgenary(BI,GI),busloadary(BI,LI),bussvcary(BI,SVCI),brnchary(BI,BI),Slin_max(BI,BI),wl(LI),busltcary(BI,LTCI);
+$GDXIN mat2gms_tables.gdx
+$LOAD busgenary,busloadary,bussvcary,brnchary,Slin_max,wl,busltcary
+$GDXOUT
+
+Parameter pf(LI),Pgmax(GI),Pgmin(GI),Qgmax(GI),Qgmin(GI),Vmax(BI),Vmin(BI),Plmin(LI),Plmax(LI),Qlmin(LI),Bsvc_max(BI),Bsvc_min(BI),Xs(GI),Xad(GI),Bltc(LTCI,LTCI),ifd_max(GI),t_max(LTCI,LTCI),t_min(LTCI,LTCI);
+$GDXIN mat2gms_para.gdx
+$LOAD pf,Pgmax,Pgmin,Qgmax,Qgmin,Vmax,Vmin,Plmin,Plmax,Qlmin,Bsvc_max,Bsvc_min,Xs,Xad,Bltc,ifd_max,t_max,t_min
+$GDXOUT
+
+Parameter svmax(BI),svmin(BI),spgmax(GI),spgmin(GI),sqgmax(GI),sqgmin(GI),sbsvcmax(SVCI),splmax(LI),splmin(LI),sbsvcmin(SVCI);
+$GDXIN mat2gms_slack.gdx
+$LOAD svmax,svmin,spgmax,spgmin,sqgmax,sqgmin,splmax,splmin,sbsvcmax,sbsvcmin
+$GDXOUT
+
+scalar pi /3.14159/
+
+************************************************************************************************************************************
+************************************************************************************************************************************
+* Defining parameters and variables
+
+Variables
+        Vr(BI)           Bus voltage(real part)
+        Vi(BI)           Bus voltage(imaginary part)
+        Vmag(BI)         Voltage magnitude at a bus
+        Pg(GI)           Real power generation at a bus
+        Qg(GI)           Reactive power generation at a bus
+        Pl(LI)           Real power load at a bus
+        Ql(LI)           Reactive power load at a bus
+        z                Maximum loading in the system
+        Ir(GI)           Real part of armature current of generator
+        Ii(GI)           Imaginary part of armature current of generator
+        Bsvc(SVCI)       Shunt susceptance of SVC
+        Pflow(BI,BI)     Real power flow on line
+        Qflow(BI,m)
+        QflowLTC(LTCI)   Reactive power flow on line
+        PflowLTC(LTCI)
+        QLTC(LTCI)
+        t(LTCI,LTCI)     Tap ratio
+;
+
+positive variables sv_max(BI),sv_min(BI),spg_max(GI),spg_min(GI),sqg_max(GI),sqg_min(GI),spl_max(LI),sbsvc_max(SVCI),sbsvc_min(SVCI),lamda,tap;
+lamda.fx=0;
+************************************************************************************************************************************
+************************************************************************************************************************************
+* Assigning starting point
+
+*execute_loadpoint 'OPF_trial_p.gdx';
+*$ontext
+Parameters Vmag_ini(BI),Pg_ini(GI),Qg_ini(GI),Vr_ini(BI),Vi_ini(BI);
+$GDXIN mat2gms_ini.gdx
+$LOAD Vmag_ini,Pg_ini,Qg_ini,Vr_ini,Vi_ini
+$GDXOUT
+
+Vmag.l(BI) = Vmag_ini(BI);
+Pg.l(GI) = Pg_ini(GI);
+Qg.l(GI) = Qg_ini(GI);
+Pl.l(LI) = Plmax(LI);
+Vr.l(BI) = Vr_ini(BI);
+Vi.l(BI) = Vi_ini(BI);
+*$offtext
+
+************************************************************************************************************************************
+************************************************************************************************************************************
+* Slack variable bounds
+sv_max.up(BI) = svmax(BI);
+sv_min.up(BI) = svmin(BI);
+spg_max.up(GI) = spgmax(GI);
+spg_min.up(GI) = spgmin(GI);
+sqg_max.up(GI) = sqgmax(GI);
+sqg_min.up(GI) = sqgmin(GI);
+sbsvc_max.up(SVCI) = sbsvcmax(SVCI);
+sbsvc_min.up(SVCI) = sbsvcmin(SVCI);
+*st_max.up(BI) = stmax(BI);
+*st_min.up(BI) = stmin(BI);
+tap.up = 0.98;
+tap.lo = 0.98;
+
+************************************************************************************************************************************
+
+Equations
+* Power balance constraints
+        obj                     Maximum load the system can handle
+        ePbal(BI)               Real power balance at bus k
+        eQbal(BI)               Reactive power balance at bus
+
+* Other Equality constraints
+        epf_load(LI)            Equation for constant power factor loads
+        eVmag(BI)               Voltage magnitude
+        ePflow(BI,m)            Real power flow on a line
+        eQflow(BI,m)            Reactive power flow on a line
+        erefangle               Slack bus angle
+
+* Variable limits
+        eMVA_max(BI,m)
+        eVmax(BI)
+        eVmin(BI)
+        ePgmax(GI)
+        ePgmin(GI)
+        eQgmax(GI)
+        eQgmin(GI)
+        ePlmin(LI)
+        ePlmax(LI)
+        ePl(LI)
+        eBsvcmax(SVCI)
+        eBsvcmin(SVCI)
+*        etmax(LTCI,LTCI)
+*        etmin(LTCI,LTCI)
+
+* Generator limits
+*    ecapab(GI)
+*    esmax(GI)
+
+* Tap changer equations
+         etap_shunt_from(LTCI)
+         etap1_shunt_to(LTCI)
+         etap_qflow(LTCI)
+         etap_pflow(LTCI)
+;
+************************************************************************************************************************************
+************************************************************************************************************************************
+* Equation definition
+
+*obj..                   z =e= sum(LI,wl(LI)*Pl(LI)) - sum(BI,sv_max(BI)) - sum(BI,sv_min(BI)) - sum(GI,spg_max(GI)) - sum(GI,spg_min*(GI)) - sum(GI,sqg_max(GI)) - sum(GI,sqg_min(GI)) - sum(SVCI,sbsvc_max(SVCI)) - sum(SVCI,sbsvc_min(SVCI));
+
+obj..                   z =e= 1000*lamda - sum(BI,sv_max(BI)) - sum(BI,sv_min(BI)) - sum(GI,spg_max(GI)) - sum(GI,spg_min(GI)) - sum(GI,sqg_max(GI)) - sum(GI,sqg_min(GI)) - sum(SVCI,sbsvc_max(SVCI)) - sum(SVCI,sbsvc_min(SVCI));
+
+*obj..                    z =e= 1;
+***********************************************************************************************************************************
+* Power balance equations
+
+ePbal(BI)..      sum(GI,busgenary(BI,GI)*Pg(GI)) + sum(LTCI,busltcary(BI,LTCI)*(- PflowLTC(LTCI)))- sum(LI,busloadary(BI,LI)*Pl(LI)*(1+0*Vmag(LI)+0*sqr(Vmag(LI))))-
+                        sum(m,G(BI,m)*(Vr(BI)*Vr(m)+Vi(BI)*Vi(m)) + B(BI,m)*(-Vr(BI)*Vi(m)+Vi(BI)*Vr(m))) =e= 0;
+
+eQbal(BI)..      sum(GI,busgenary(BI,GI)*Qg(GI)) + sum(SVCI,bussvcary(BI,SVCI)*Bsvc(SVCI))*sqr(Vmag(BI)) + sum(LTCI,busltcary(BI,LTCI)*(QLTC(LTCI) - QflowLTC(LTCI)))
+                 - sum(LI,busloadary(BI,LI)*Ql(LI)*(1+0*Vmag(LI)+0*sqr(Vmag(LI))))
+                 - sum(m,G(BI,m)*(-Vr(BI)*Vi(m)+Vi(BI)*Vr(m)) + B(BI,m)*(-Vr(BI)*Vr(m)-Vi(BI)*Vi(m))) =e= 0;
+
+***********************************************************************************************************************************
+* Variable limits
+
+eVmax(BI)..              Vmag(BI) - sv_max(BI) =l= Vmax(BI);
+
+eVmin(BI)..              Vmag(BI) + sv_min(BI) =g= Vmin(BI);
+
+ePgmax(GI)..             Pg(GI) - spg_max(GI)  =l= Pgmax(GI);
+
+ePgmin(GI)..             Pg(GI) + spg_min(GI)  =g= Pgmin(GI);
+
+eQgmax(GI)..             Qg(GI) - sqg_max(GI)  =l= Qgmax(GI);
+
+eQgmin(GI)..             Qg(GI) + sqg_min(GI)  =g= Qgmin(GI);
+
+ePlmax(LI)..             Pl(LI)                =l= Plmax(LI);
+
+ePlmin(LI)..             Pl(LI)                =g= Plmin(LI);
+
+ePl(LI)..                Pl(LI)                =e= (1+lamda)*Plmin(LI);
+
+eBsvcmax(SVCI)..         Bsvc(SVCI) - sbsvc_max(SVCI) =l= Bsvc_max(SVCI);
+
+eBsvcmin(SVCI)..         Bsvc(SVCI) + sbsvc_min(SVCI) =g= Bsvc_min(SVCI);
+
+*etmax(LTCI,LTCI)..          t(LTCI,LTCI)  =l= t_max(LTCI,LTCI);
+
+*etmin(LTCI,LTCI)..          t(LTCI,LTCI)  =g= t_min(LTCI,LTCI);
+
+***********************************************************************************************************************************
+* Other equality constraints
+
+epf_load(LI)..          Ql(LI)*pf(LI) =e= Pl(LI)*sqrt(1-sqr(pf(LI)));
+
+erefangle..             Vi("B1") =e= 0;
+
+eVmag(BI)..             sqr(Vmag(BI)) =e= sqr(Vr(BI))+sqr(Vi(BI));
+***********************************************************************************************************************************
+
+***********************************************************************************************************************************
+* Line flow constraint
+
+ePflow(BI,m)$(brnchary(BI,m) eq 1)..            Vr(BI)*(-G(BI,m)*(Vr(BI)-Vr(m))+B(BI,m)*(Vi(BI)-Vi(m))) +
+                                                  Vi(BI)*(-G(BI,m)*(Vi(BI)-Vi(m))-B(BI,m)*(Vr(BI)-Vr(m))) =e= Pflow(BI,m);
+
+eQflow(BI,m)$(brnchary(BI,m) eq 1)..            Vi(BI)*(-G(BI,m)*(Vr(BI)-Vr(m))+B(BI,m)*(Vi(BI)-Vi(m))) -
+                                                  Vr(BI)*(-G(BI,m)*(Vi(BI)-Vi(m))-B(BI,m)*(Vr(BI)-Vr(m))) =e= Qflow(BI,m);
+
+eMVA_max(BI,m)$(brnchary(BI,m) eq 1)..          sqrt(sqr(Pflow(BI,m)) + sqr(Qflow(BI,m))) =l= (Slin_max(BI,m));
+***********************************************************************************************************************************
+
+***********************************************************************************************************************************
+* Generator current limits/Reactive power output constraints
+
+*ecapab(GI)..       sqr(Pg(GI))+sqr(Qg(GI)+sVmag(GI)/Xs(GI)) =l= sqr(Xad(GI)/Xs(GI))*sVmag(GI)*sqr(ifd_max(GI));
+*esmax(GI)..        sqr(Pg(GI)) + sqr(Qg(GI)) =l= sqr(Smax(GI));
+***********************************************************************************************************************************
+
+***********************************************************************************************************************************
+* Transformer tap changing
+
+etap_shunt_from(LTCI)$(LTCf(LTCI,LTCI))..       QLTC(LTCI) =e= sqr(Vmag(LTCI))*sum(k$LTCft(LTCI,k),tap*(tap-1)*Bltc(LTCI,k));
+etap1_shunt_to(LTCI)$(LTCt(LTCI,LTCI))..        QLTC(LTCI) =e= sqr(Vmag(LTCI))*sum(k$LTCft(LTCI,k),(1-tap)*Bltc(LTCI,k));
+
+etap_qflow(LTCI)..                              QflowLTC(LTCI) =e= tap*sum(k,Bltc(LTCI,k)*(-Vr(LTCI)*Vr(k) - Vi(LTCI)*Vi(k)));
+etap_pflow(LTCI)..                              PflowLTC(LTCI) =e= tap*sum(k,Bltc(LTCI,k)*(-Vi(LTCI)*Vr(k) + Vr(LTCI)*Vi(k)));
+************************************************************************************************************************************
+************************************************************************************************************************************
+
+Model OPF_trial /all/;
+
+option nlp=snopt;
+option limrow=15;
+OPF_trial.optfile=1;
+Solve OPF_trial using NLP maximizing z;
+
+parameters model_status,solver_status;
+model_status = OPF_trial.modelstat;
+solver_status = OPF_trial.solvestat;
+
+
+execute_unload %matout%;
+***********************************************************************************************************************************
+
+

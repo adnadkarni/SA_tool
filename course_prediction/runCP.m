@@ -39,11 +39,11 @@ if (~isempty(yCP.selectTS))
     
     
     %% Plot course prediction
-    flagPlotExt = 0; % whether to plot results
+    flagPlotExt = 1; % whether to plot results
     
     if flagPlotExt == 1
         close all;
-        plotExtrapolate(yTr, yCP);
+        plotExtrapolate(yTr, yCP, yPara);
     end
     
 end

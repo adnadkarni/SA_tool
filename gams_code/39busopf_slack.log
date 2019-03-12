@@ -1,0 +1,87 @@
+
+--- Job 39busopf_slack.gms Start 03/20/16 13:57:10 24.4.1 r50296 WEX-WEI x86 64bit/MS Windows
+GAMS 24.4.1   Copyright (C) 1987-2014 GAMS Development. All rights reserved
+*** License File validation failed
+*** System downgraded to demonstration mode
+***
+*** Contact your distributor or GAMS Development Corp
+*** 202-342-0180, -0181 fax, support@gams.com
+*** GAMS Base Module 24.4.1 r50296 Released Dec 20, 2014 WEI x86 64bit/MS Windo
+***
+*** GAMS Release     : 24.4.1 r50296 WEX-WEI x86 64bit/MS Windows
+*** Release Date     : Released Dec 20, 2014
+*** License Date     : Dec 20, 2014
+*** To use this release, you must have a valid license file
+*** for this platform and the maintenance expiration date for
+*** your license must be later than the License Date (Dec 20, 2014).
+*** System Directory : C:\GAMS\win64\24.4\
+*** License          : C:\GAMS\win64\24.4\gamslice.txt
+***
+*** Department of Electrical Engineering           G141107:1022AO-LNX
+*** Indian Institute of Technology Bombay                            
+*** DC11372 01BAM5SN                                             0000
+*** License for teaching and research at degree granting institutions
+***
+*** Above license is invalid
+--- Starting compilation
+--- 39busopf_slack.gms(8) 3 Mb
+--- GDXin=C:\GAMS\gamsdir\projdir\opf_hp\mat2gms_sets.gdx
+--- 39busopf_slack.gms(21) 3 Mb
+--- GDXin=C:\GAMS\gamsdir\projdir\opf_hp\mat2gms_Ybus.gdx
+--- 39busopf_slack.gms(26) 3 Mb
+--- GDXin=C:\GAMS\gamsdir\projdir\opf_hp\mat2gms_tables.gdx
+--- 39busopf_slack.gms(31) 3 Mb
+--- GDXin=C:\GAMS\gamsdir\projdir\opf_hp\mat2gms_para.gdx
+--- 39busopf_slack.gms(36) 3 Mb
+--- GDXin=C:\GAMS\gamsdir\projdir\opf_hp\mat2gms_slack.gdx
+--- 39busopf_slack.gms(71) 3 Mb
+--- GDXin=C:\GAMS\gamsdir\projdir\opf_hp\mat2gms_ini.gdx
+--- 39busopf_slack.gms(149) 3 Mb 8 Errors
+*** Error 148 in C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.gms
+    Dimension different - The symbol is referenced with more/less
+       indices as declared
+*** Error 135 in C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.gms
+    Incompatible operands for relational operator
+*** Error 148 in C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.gms
+    Dimension different - The symbol is referenced with more/less
+       indices as declared
+*** Error 135 in C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.gms
+    Incompatible operands for relational operator
+*** Error 148 in C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.gms
+    Dimension different - The symbol is referenced with more/less
+       indices as declared
+*** Error 135 in C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.gms
+    Incompatible operands for relational operator
+*** Error 148 in C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.gms
+    Dimension different - The symbol is referenced with more/less
+       indices as declared
+*** Error 135 in C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.gms
+    Incompatible operands for relational operator
+--- 39busopf_slack.gms(150) 3 Mb 16 Errors
+*** Error 148 in C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.gms
+    Dimension different - The symbol is referenced with more/less
+       indices as declared
+*** Error 135 in C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.gms
+    Incompatible operands for relational operator
+*** Error 148 in C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.gms
+    Dimension different - The symbol is referenced with more/less
+       indices as declared
+*** Error 135 in C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.gms
+    Incompatible operands for relational operator
+*** Error 148 in C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.gms
+    Dimension different - The symbol is referenced with more/less
+       indices as declared
+*** Error 135 in C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.gms
+    Incompatible operands for relational operator
+*** Error 148 in C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.gms
+    Dimension different - The symbol is referenced with more/less
+       indices as declared
+*** Error 135 in C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.gms
+    Incompatible operands for relational operator
+--- 39busopf_slack.gms(216) 3 Mb 17 Errors
+*** Error 257 in C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.gms
+    Solve statement not checked because of previous errors
+--- 39busopf_slack.gms(226) 3 Mb 17 Errors
+*** Status: Compilation error(s)
+--- Job 39busopf_slack.gms Stop 03/20/16 13:57:10 elapsed 0:00:00.167
+Exit code = 2

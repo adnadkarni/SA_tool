@@ -8,8 +8,9 @@ namePlotTS = yIn1.namePMU(indexPlotTS);
 
 figure(1)
 %%
+intX = 2000;
 subplot(2,3,1)
-pl1 = plot(yIn1.indexTime,yIn1.val(:,indexPlotTS)/1e3);
+pl1 = plot(yIn1.indexTime,yIn1.val(:,indexPlotTS));
 grid on;
 
 para.LineWidth = 2;
@@ -19,16 +20,17 @@ para.MarkerIndices = [1:10:size(yIn1.val,1)];
 para.ylim = [];
 para.xlim = [yIn1.indexTime(1) yIn1.indexTime(end)];
 para.xlabel = 'time (hh:mm:ss)';
-para.ylabel = 'voltage (kV)';
+para.ylabel = 'frequency (Hz)';
 para.facecolor = [];
 para.barwidth = [];
 para.position = [0.13 0.58 0.65 0.34];
-para.xticks = yIn1.indexTime([1:200:size(yIn1.val,1)]);
+para.xticks = yIn1.indexTime([1:intX:size(yIn1.val,1)]);
 para.yticks = 'auto';
 para.TSnames = namePlotTS;                                                  % pass only when legends are to be plotted
 setPlotPara(para, pl1)
 
 %%
+intX = 5000;
 subplot(2,3,4)
 pl2 = bar(yIn3.indexEndTime, yIn3.statusLastSegTrend, 'k');
 grid on;
@@ -45,7 +47,7 @@ para.position = [];
 para.xticks = [1:10:size(yIn1.val,1)];
 para.facecolor = [0 0 0];
 para.barwidth = 0.4;
-para.xticks = yIn1.indexTime([1:200:size(yIn1.val,1)]);
+para.xticks = yIn1.indexTime([1:intX:size(yIn1.val,1)]);
 para.yticks = unique(yIn3.statusLastSegTrend);
 para.TSnames = []; 
 setPlotPara(para, pl2)
@@ -67,7 +69,7 @@ para.position = [];
 para.xticks = [1:10:size(yIn1.val,1)];
 para.facecolor = [0 0 0];
 para.barwidth = 0.4;
-para.xticks = yIn1.indexTime([1:200:size(yIn1.val,1)]);
+para.xticks = yIn1.indexTime([1:intX:size(yIn1.val,1)]);
 para.yticks = unique(yIn4.statusSpike);
 para.TSnames = [];
 setPlotPara(para, pl3)
@@ -89,7 +91,7 @@ para.position = [];
 para.xticks = [1:10:size(yIn1.val,1)];
 para.facecolor = [0 0 0];
 para.barwidth = 0.4;
-para.xticks = yIn1.indexTime([1:200:size(yIn1.val,1)]);
+para.xticks = yIn1.indexTime([1:intX:size(yIn1.val,1)]);
 para.yticks = unique(yIn5.statusLevelChange);
 para.TSnames = [];
 setPlotPara(para, pl4)

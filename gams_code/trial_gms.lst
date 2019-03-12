@@ -1,0 +1,39 @@
+GAMS 24.4.1  r50296 Released Dec 20, 2014 WEX-WEI x86 64bit/MS Windows 03/21/16 10:56:40 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   1  Sets
+   2  LTCbus /B14,B15/
+   3  LTCt /B15/
+   4  LTC(LTCbus,LTCbus)  /B14.B15,B15.B14/
+   5  ;
+   6  display LTC;
+
+
+COMPILATION TIME     =        0.000 SECONDS      3 MB  24.4.1 r50296 WEX-WEI
+GAMS 24.4.1  r50296 Released Dec 20, 2014 WEX-WEI x86 64bit/MS Windows 03/21/16 10:56:40 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+----      6 SET LTC  
+
+            B14         B15
+
+B14                     YES
+B15         YES
+
+
+
+EXECUTION TIME       =        0.062 SECONDS      4 MB  24.4.1 r50296 WEX-WEI
+
+
+USER: GAMS Development Corporation, Washington, DC   G871201/0000CA-ANY
+      Free Demo,  202-342-0180,  sales@gams.com,  www.gams.com   DC0000
+
+
+**** FILE SUMMARY
+
+Input      C:\GAMS\gamsdir\projdir\opf_hp\trial_gms.gms
+Output     C:\GAMS\gamsdir\projdir\opf_hp\trial_gms.lst

@@ -1,0 +1,361 @@
+GAMS 24.4.1  r50296 Released Dec 20, 2014 WEX-WEI x86 64bit/MS Windows 03/20/16 13:57:10 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   2   
+   3  Sets
+   4  BI, GI(BI), LI(BI), PVI(GI), NGI(BI), SVCI(BI)
+   5  LTCI /B14,B15/
+   6  ;
+   7   
+GDXIN   C:\GAMS\gamsdir\projdir\opf_hp\mat2gms_sets.gdx
+--- LOAD  BI = 1:BI
+--- LOAD  GI = 2:GI
+--- LOAD  LI = 3:LI
+--- LOAD  PVI = 4:PVI
+--- LOAD  SVCI = 5:SVCI
+  11   
+  12   
+  13  NGI(BI) = not GI(BI);
+  14  Alias(BI,m);
+  15   
+  16  **************************************************************************
+      **********************************************************
+  17  **************************************************************************
+      **********************************************************
+  18  * Importing input data
+  19   
+  20  Parameter G(BI,m), B(BI,m);
+GDXIN   C:\GAMS\gamsdir\projdir\opf_hp\mat2gms_Ybus.gdx
+--- LOAD  G = 1:G
+--- LOAD  B = 2:B
+  24   
+  25  Parameter busgenary(BI,GI),busloadary(BI,LI),bussvcary(BI,SVCI),brnchary(B
+      I,BI),Slin_max(BI,BI),wl(LI);
+GDXIN   C:\GAMS\gamsdir\projdir\opf_hp\mat2gms_tables.gdx
+--- LOAD  busgenary = 1:busgenary
+--- LOAD  busloadary = 2:busloadary
+--- LOAD  bussvcary = 3:bussvcary
+--- LOAD  brnchary = 4:brnchary
+--- LOAD  Slin_max = 5:Slin_max
+--- LOAD  wl = 6:wl
+  29   
+  30  Parameter pf(LI),Pgmax(GI),Pgmin(GI),Qgmax(GI),Qgmin(GI),Vmax(BI),Vmin(BI)
+      ,Plmin(LI),Plmax(LI),Qlmin(LI),Bsvc_max(BI),Bsvc_min(BI),Xs(GI),Xad(GI),if
+      d_max(GI);
+GDXIN   C:\GAMS\gamsdir\projdir\opf_hp\mat2gms_para.gdx
+--- LOAD  pf = 1:pf
+--- LOAD  Pgmax = 2:Pgmax
+--- LOAD  Pgmin = 3:Pgmin
+--- LOAD  Qgmax = 4:Qgmax
+--- LOAD  Qgmin = 5:Qgmin
+--- LOAD  Vmax = 6:Vmax
+--- LOAD  Vmin = 7:Vmin
+--- LOAD  Plmin = 9:Plmin
+--- LOAD  Plmax = 8:Plmax
+--- LOAD  Qlmin = 10:Qlmin
+--- LOAD  Bsvc_max = 11:Bsvc_max
+--- LOAD  Bsvc_min = 12:Bsvc_min
+--- LOAD  Xs = 13:Xs
+--- LOAD  Xad = 14:Xad
+--- LOAD  ifd_max = 15:ifd_max
+  34   
+  35  Parameter svmax(BI),svmin(BI),spgmax(GI),spgmin(GI),sqgmax(GI),sqgmin(GI),
+      sbsvcmax(SVCI),splmax(LI),splmin(LI),sbsvcmin(SVCI);
+GDXIN   C:\GAMS\gamsdir\projdir\opf_hp\mat2gms_slack.gdx
+--- LOAD  svmax = 1:svmax
+--- LOAD  svmin = 2:svmin
+--- LOAD  spgmax = 3:spgmax
+--- LOAD  spgmin = 4:spgmin
+--- LOAD  sqgmax = 5:sqgmax
+--- LOAD  sqgmin = 6:sqgmin
+--- LOAD  splmax = 7:splmax
+--- LOAD  splmin = 8:splmin
+--- LOAD  sbsvcmax = 9:sbsvcmax
+--- LOAD  sbsvcmin = 10:sbsvcmin
+  39   
+  40  scalar pi /3.14159/
+  41   
+  42  **************************************************************************
+      **********************************************************
+  43  **************************************************************************
+      **********************************************************
+  44  * Defining parameters and variables
+  45   
+  46  Variables
+  47          Vr(BI)           Bus voltage(real part)
+  48          Vi(BI)           Bus voltage(imaginary part)
+  49          Vmag(BI)         Voltage magnitude at a bus
+  50          Pg(GI)           Real power generation at a bus
+  51          Qg(GI)           Reactive power generation at a bus
+  52          Pl(LI)           Real power load at a bus
+  53          Ql(LI)           Reactive power load at a bus
+  54          z                Maximum loading in the system
+  55          Ir(GI)           Real part of armature current of generator
+  56          Ii(GI)           Imaginary part of armature current of generator
+  57          Bsvc(SVCI)       Shunt susceptance of SVC
+  58          Pflow(BI,BI)     Real power flow on line
+  59          Qflow(BI,BI)     Reactive power flow on line
+  60  ;
+  61   
+  62  positive variables sv_max(BI),sv_min(BI),spg_max(GI),spg_min(GI),sqg_max(G
+      I),sqg_min(GI),spl_max(LI),sbsvc_max(SVCI),sbsvc_min(SVCI),lamda;
+  63  lamda.fx=0;
+  64  **************************************************************************
+      **********************************************************
+  65  **************************************************************************
+      **********************************************************
+  66  * Assigning starting point
+  67   
+  68  *execute_loadpoint 'OPF_trial_p.gdx';
+  69  *$ontext
+  70  Parameters Vmag_ini(BI),Pg_ini(GI),Qg_ini(GI),Vr_ini(BI),Vi_ini(BI);
+GDXIN   C:\GAMS\gamsdir\projdir\opf_hp\mat2gms_ini.gdx
+--- LOAD  Vmag_ini = 1:Vmag_ini
+--- LOAD  Pg_ini = 2:Pg_ini
+--- LOAD  Qg_ini = 3:Qg_ini
+--- LOAD  Vr_ini = 4:Vr_ini
+--- LOAD  Vi_ini = 5:Vi_ini
+  74   
+  75  Vmag.l(BI) = Vmag_ini(BI);
+  76  Pg.l(GI) = Pg_ini(GI);
+  77  Qg.l(GI) = Qg_ini(GI);
+  78  Pl.l(LI) = Plmax(LI);
+  79  Vr.l(BI) = Vr_ini(BI);
+  80  Vi.l(BI) = Vi_ini(BI);
+  81  *$offtext
+  82   
+  83  **************************************************************************
+      **********************************************************
+  84  **************************************************************************
+      **********************************************************
+  85  * Slack variable bounds
+  86  sv_max.up(BI) = svmax(BI);
+  87  sv_min.up(BI) = svmin(BI);
+  88  spg_max.up(GI) = spgmax(GI);
+  89  spg_min.up(GI) = spgmin(GI);
+  90  sqg_max.up(GI) = sqgmax(GI);
+  91  sqg_min.up(GI) = sqgmin(GI);
+  92  sbsvc_max.up(SVCI) = sbsvcmax(SVCI);
+  93  sbsvc_min.up(SVCI) = sbsvcmin(SVCI);
+  94   
+  95  **************************************************************************
+      **********************************************************
+  96   
+  97  Equations
+  98  * Power balance constraints
+  99          obj                     Maximum load the system can handle
+ 100          ePbal(BI)               Real power balance at bus k
+ 101          eQbal(BI)               Reactive power balance at bus
+ 102   
+ 103  * Other Equality constraints
+ 104          epf_load(LI)            Equation for constant power factor loads
+ 105          eVmag(BI)               Voltage magnitude
+ 106          ePflow(BI,m)            Real power flow on a line
+ 107          eQflow(BI,m)            Reactive power flow on a line
+ 108          erefangle               Slack bus angle
+ 109   
+ 110  * Variable limits
+ 111          eMVA_max(BI,m)
+ 112          eVmax(BI)
+ 113          eVmin(BI)
+ 114          ePgmax(GI)
+ 115          ePgmin(GI)
+ 116          eQgmax(GI)
+ 117          eQgmin(GI)
+ 118          ePlmin(LI)
+ 119          ePlmax(LI)
+ 120          ePl(LI)
+ 121          eBsvcmax(SVCI)
+ 122          eBsvcmin(SVCI)
+ 123   
+ 124  * Generator limits
+ 125  *    ecapab(GI)
+ 126  *    esmax(GI)
+ 127   
+ 128  * Tap changer equations
+ 129   
+ 130  ;
+ 131  **************************************************************************
+      **********************************************************
+ 132  **************************************************************************
+      **********************************************************
+ 133  * Equation definition
+ 134   
+ 135  *obj..                   z =e= sum(LI,wl(LI)*Pl(LI)) - sum(BI,sv_max(BI)) 
+      - sum(BI,sv_min(BI)) - sum(GI,spg_max(GI)) - sum(GI,spg_min*(GI)) - sum(GI
+      ,sqg_max(GI)) - sum(GI,sqg_min(GI)) - sum(SVCI,sbsvc_max(SVCI)) - sum(SVCI
+      ,sbsvc_min(SVCI));
+ 136   
+ 137  obj..                   z =e= 1000*lamda - sum(BI,sv_max(BI)) - sum(BI,sv_
+      min(BI)) - sum(GI,spg_max(GI)) - sum(GI,spg_min(GI)) - sum(GI,sqg_max(GI))
+       - sum(GI,sqg_min(GI)) - sum(SVCI,sbsvc_max(SVCI)) - sum(SVCI,sbsvc_min(SV
+      CI));
+ 138   
+ 139   
+ 140  **************************************************************************
+      *********************************************************
+ 141  * Power balance equations
+ 142   
+ 143  ePbal(BI)..      sum(GI,busgenary(BI,GI)*Pg(GI)) - sum(LI,busloadary(BI,LI
+      )*Pl(LI)*(1+0*Vmag(LI)+0*sqr(Vmag(LI))))-
+ 144                          (Vr(BI)*sum(m,G(BI,m)*Vr(m)-B(BI,m)*Vi(m)) + Vi(BI
+      )*sum(m,G(BI,m)*Vi(m)+B(BI,m)*Vr(m))) =e= 0.0;
+ 145   
+ 146   
+ 147  eQbal(BI)..      sum(GI,busgenary(BI,GI)*Qg(GI)) + sum(SVCI,bussvcary(BI,S
+      VCI)*Bsvc(SVCI))*sqr(Vmag(BI)) - sum(LI,busloadary(BI,LI)*Ql(LI)*(1+0*Vmag
+      (LI)+0*sqr(Vmag
+ 148  (LI))))
+ 149                   - (-Vr(BI)*sum(m$(BI = m),G(BI,m)*Vi(m)+B(BI,m)*Vr(m)) + 
+****                                        $148,135,148,135                    
+      Vi(BI)*sum(m$(BI = m),G(BI,m)*Vr(m)-B(BI,m)*Vi(m)))
+                       $148,135,148,135
+ 150                   - (-Vr(BI)*sum(m$(BI ne m),G(BI,m)*Vi(m)+B(BI,m)*Vr(m)) +
+****                                         $148,135,148,135                   
+       Vi(BI)*sum(m$(BI ne m),G(BI,m)*Vr(m)-B(BI,m)*Vi(m))) =e= 0.00;
+                         $148,135,148,135
+ 151   
+ 152  **************************************************************************
+      *********************************************************
+ 153  * Variable limits
+ 154   
+ 155  eVmax(BI)..         Vmag(BI) - sv_max(BI) =l= Vmax(BI);
+ 156   
+ 157  eVmin(BI)..         Vmag(BI) + sv_min(BI) =g= Vmin(BI);
+ 158   
+ 159  ePgmax(GI)..        Pg(GI) - spg_max(GI)  =l= Pgmax(GI);
+ 160   
+ 161  ePgmin(GI)..        Pg(GI) + spg_min(GI)  =g= Pgmin(GI);
+ 162   
+ 163  eQgmax(GI)..        Qg(GI) - sqg_max(GI)  =l= Qgmax(GI);
+ 164   
+ 165  eQgmin(GI)..        Qg(GI) + sqg_min(GI)  =g= Qgmin(GI);
+ 166   
+ 167  ePlmax(LI)..        Pl(LI)                =l= Plmax(LI);
+ 168   
+ 169  ePlmin(LI)..        Pl(LI)                =g= Plmin(LI);
+ 170   
+ 171  ePl(LI)..           Pl(LI)                =e= (1+lamda)*Plmin(LI);
+ 172   
+ 173  eBsvcmax(SVCI)..    Bsvc(SVCI) - sbsvc_max(SVCI) =l= Bsvc_max(SVCI);
+ 174   
+ 175  eBsvcmin(SVCI)..    Bsvc(SVCI) + sbsvc_min(SVCI) =g= Bsvc_min(SVCI);
+ 176   
+ 177  **************************************************************************
+      *********************************************************
+ 178  * Other equality constraints
+ 179   
+ 180  epf_load(LI)..          Ql(LI)*pf(LI) =e= Pl(LI)*sqrt(1-sqr(pf(LI)));
+ 181   
+ 182  erefangle..             Vi("B1") =e= 0;
+ 183   
+ 184  eVmag(BI)..             sqr(Vmag(BI)) =e= sqr(Vr(BI))+sqr(Vi(BI));
+ 185  **************************************************************************
+      *********************************************************
+ 186   
+ 187  **************************************************************************
+      *********************************************************
+ 188  * Line flow constraint
+ 189   
+ 190  ePflow(BI,m)$(brnchary(BI,m) ne 0)..            Vr(BI)*(-G(BI,m)*(Vr(BI)-V
+      r(m))+B(BI,m)*(Vi(BI)-Vi(m))) +
+ 191                                                    Vi(BI)*(-G(BI,m)*(Vi(BI)
+      -Vi(m))-B(BI,m)*(Vr(BI)-Vr(m))) =e= Pflow(BI,m);
+ 192   
+ 193  eQflow(BI,m)$(brnchary(BI,m) ne 0)..            Vi(BI)*(-G(BI,m)*(Vr(BI)-V
+      r(m))+B(BI,m)*(Vi(BI)-Vi(m))) -
+ 194                                                    Vr(BI)*(-G(BI,m)*(Vi(BI)
+      -Vi(m))-B(BI,m)*(Vr(BI)-Vr(m))) =e= Qflow(BI,m);
+ 195   
+ 196  eMVA_max(BI,m)$(brnchary(BI,m) ne 0)..          sqrt(sqr(Pflow(BI,m)) + sq
+      r(Qflow(BI,m))) =l= (Slin_max(BI,m));
+ 197  **************************************************************************
+      *********************************************************
+ 198   
+ 199  **************************************************************************
+      *********************************************************
+ 200  * Generator current limits/Reactive power output constraints
+ 201   
+ 202  *ecapab(GI)..       sqr(Pg(GI))+sqr(Qg(GI)+sVmag(GI)/Xs(GI)) =l= sqr(Xad(G
+      I)/Xs(GI))*sVmag(GI)*sqr(ifd_max(GI));
+ 203  *esmax(GI)..        sqr(Pg(GI)) + sqr(Qg(GI)) =l= sqr(Smax(GI));
+ 204  **************************************************************************
+      *********************************************************
+ 205   
+ 206  **************************************************************************
+      *********************************************************
+ 207  * Transformer tap changing
+ 208   
+ 209  **************************************************************************
+      **********************************************************
+ 210  **************************************************************************
+      **********************************************************
+ 211   
+ 212  Model OPF_trial /all/;
+ 213   
+ 214  option nlp=snopt;
+ 215  OPF_trial.optfile=1;
+ 216  Solve OPF_trial using NLP maximizing z;
+****                                        $257
+ 217   
+ 218  parameters model_status,solver_status;
+ 219  model_status = OPF_trial.modelstat;
+ 220  solver_status = OPF_trial.solvestat;
+ 221   
+ 222   
+ 223  execute_unload 'matsol.gdx', model_status,solver_status,Vmag,Vr,Vi,Pg,Qg,P
+      l,Ql,Bsvc,eMVA_max,Pflow,sv_max,sv_min,spg_max,spg_min,sqg_max,sqg_min,spl
+      _max,sbsvc_max,sbsvc_min,lamda;
+ 224  **************************************************************************
+      *********************************************************
+ 225   
+ 226   
+GAMS 24.4.1  r50296 Released Dec 20, 2014 WEX-WEI x86 64bit/MS Windows 03/20/16 13:57:10 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Error Messages
+
+
+135  Incompatible operands for relational operator
+148  Dimension different - The symbol is referenced with more/less
+        indices as declared
+257  Solve statement not checked because of previous errors
+
+**** 17 ERROR(S)   0 WARNING(S)
+GAMS 24.4.1  r50296 Released Dec 20, 2014 WEX-WEI x86 64bit/MS Windows 03/20/16 13:57:10 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  C:\GAMS\gamsdir\projdir\opf_hp\39busop
+                                          f_slack.gms
+     2        8 GDXIN          1       8  C:\GAMS\gamsdir\projdir\opf_hp\mat2gms
+                                          _sets.gdx
+     3       21 GDXIN          1      21  C:\GAMS\gamsdir\projdir\opf_hp\mat2gms
+                                          _Ybus.gdx
+     4       26 GDXIN          1      26  C:\GAMS\gamsdir\projdir\opf_hp\mat2gms
+                                          _tables.gdx
+     5       31 GDXIN          1      31  C:\GAMS\gamsdir\projdir\opf_hp\mat2gms
+                                          _para.gdx
+     6       36 GDXIN          1      36  C:\GAMS\gamsdir\projdir\opf_hp\mat2gms
+                                          _slack.gdx
+     7       71 GDXIN          1      71  C:\GAMS\gamsdir\projdir\opf_hp\mat2gms
+                                          _ini.gdx
+
+
+COMPILATION TIME     =        0.047 SECONDS      3 MB  24.4.1 r50296 WEX-WEI
+
+
+USER: GAMS Development Corporation, Washington, DC   G871201/0000CA-ANY
+      Free Demo,  202-342-0180,  sales@gams.com,  www.gams.com   DC0000
+
+
+**** FILE SUMMARY
+
+Input      C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.gms
+Output     C:\GAMS\gamsdir\projdir\opf_hp\39busopf_slack.lst
+
+**** USER ERROR(S) ENCOUNTERED

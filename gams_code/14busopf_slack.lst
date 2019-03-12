@@ -1,0 +1,1333 @@
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                      11/05/18 17:12:49 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+   2   
+   3  Sets
+   4  BI, GI(BI), LI(BI), PVI(GI), NGI(BI), SVCI(BI), BrI, LTCI(BI)
+   5  ;
+   6   
+GDXIN   /home/aditya/Desktop/gams_code/mat2gms_sets.gdx
+--- LOAD  BI = 1:BI
+--- LOAD  GI = 2:GI
+--- LOAD  LI = 3:LI
+--- LOAD  PVI = 4:PVI
+--- LOAD  SVCI = 5:SVCI
+--- LOAD  LTCI = 7:LTCI
+  10   
+  11  Sets
+  12  LTCfI(LTCI) /B10/
+  13  LTCtI(LTCI) /B4/
+  14  LTCf /B10.B10/
+  15  LTCt /B4.B4/
+  16  LTCft /B10.B4,B4.B10/
+  17  ;
+  18   
+  19  NGI(BI) = not GI(BI);
+  20  Alias(BI,m);
+  21  Alias(LTCI,k);
+  22   
+  23  ************************************************************************************************************************************
+  24  ************************************************************************************************************************************
+  25  * Importing Parameters
+      Parameter G(BI,m), B(BI,m), Gf(BrI,BI), Gt(BrI,BI), Bf(BrI,BI), Bt(BrI,BI),;
+      $GDXIN mat2gms_Ybus.gdx
+      $LOAD G,B,Gf,Bf,Gt,Bt
+      $GDXOUT
+  32   
+  33  Parameter G(BI,m), B(BI,m);
+GDXIN   /home/aditya/Desktop/gams_code/mat2gms_Ybus.gdx
+--- LOAD  G = 1:G
+--- LOAD  B = 2:B
+  37   
+  38  Parameter busgenary(BI,GI),busloadary(BI,LI),bussvcary(BI,SVCI),brnchary(BI,BI),Slin_max(BI,BI),wl(LI),busltcary(BI,LTCI);
+GDXIN   /home/aditya/Desktop/gams_code/mat2gms_tables.gdx
+--- LOAD  busgenary = 1:busgenary
+--- LOAD  busloadary = 2:busloadary
+--- LOAD  bussvcary = 3:bussvcary
+--- LOAD  brnchary = 4:brnchary
+--- LOAD  Slin_max = 5:Slin_max
+--- LOAD  wl = 6:wl
+--- LOAD  busltcary = 7:busltcary
+  42   
+  43  Parameter pf(LI),Pgmax(GI),Pgmin(GI),Qgmax(GI),Qgmin(GI),Vmax(BI),Vmin(BI),Plmin(LI),Plmax(LI),Qlmin(LI),Qlmax(LI),Bsvcmax(BI),Bsvcmin(BI),Bltc(LTCI,LTCI),Sgmax(GI);
+GDXIN   /home/aditya/Desktop/gams_code/mat2gms_varlim.gdx
+--- LOAD  pf = 1:pf
+--- LOAD  Pgmax = 2:Pgmax
+--- LOAD  Pgmin = 3:Pgmin
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                      11/05/18 17:12:49 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+--- LOAD  Qgmax = 4:Qgmax
+--- LOAD  Qgmin = 5:Qgmin
+--- LOAD  Vmax = 6:Vmax
+--- LOAD  Vmin = 7:Vmin
+--- LOAD  Plmin = 9:Plmin
+--- LOAD  Plmax = 8:Plmax
+--- LOAD  Qlmin = 11:Qlmin
+--- LOAD  Qlmax = 10:Qlmax
+--- LOAD  Bsvcmax = 12:Bsvcmax
+--- LOAD  Bsvcmin = 13:Bsvcmin
+--- LOAD  Bltc = 15:Bltc
+--- LOAD  Sgmax = 14:Sgmax
+  47   
+  48  Parameter svmax(BI),svmin(BI),spgmax(GI),spgmin(GI),sqgmax(GI),sqgmin(GI),sbsvcmax(SVCI),sbsvcmin(SVCI),splmax(LI),splmin(LI),sqlmax(LI),sqlmin(LI);
+GDXIN   /home/aditya/Desktop/gams_code/mat2gms_slack.gdx
+--- LOAD  svmax = 1:svmax
+--- LOAD  svmin = 2:svmin
+--- LOAD  spgmax = 3:spgmax
+--- LOAD  spgmin = 4:spgmin
+--- LOAD  sqgmax = 5:sqgmax
+--- LOAD  sqgmin = 6:sqgmin
+--- LOAD  splmax = 7:splmax
+--- LOAD  splmin = 8:splmin
+--- LOAD  sbsvcmax = 11:sbsvcmax
+--- LOAD  sbsvcmin = 12:sbsvcmin
+--- LOAD  sqlmax = 9:sqlmax
+--- LOAD  sqlmin = 10:sqlmin
+  52   
+  53  Parameter p1(LI),p2(LI),p3(LI),q1(LI),q2(LI),q3(LI);
+GDXIN   /home/aditya/Desktop/gams_code/mat2gms_zip_para.gdx
+--- LOAD  p1 = 1:p1
+--- LOAD  p2 = 2:p2
+--- LOAD  p3 = 3:p3
+--- LOAD  q1 = 4:q1
+--- LOAD  q2 = 5:q2
+--- LOAD  q3 = 6:q3
+  57   
+  58  scalar pi /3.14159/
+  59   
+  60  ************************************************************************************************************************************
+  61  ************************************************************************************************************************************
+  62  * Defining variables
+  63   
+  64  Variables
+  65          Vr(BI)           Bus voltage(real part)
+  66          Vi(BI)           Bus voltage(imaginary part)
+  67          Vmag(BI)         Voltage magnitude at a bus
+  68          Pg(GI)           Real power generation at a bus
+  69          Qg(GI)           Reactive power generation at a bus
+  70          Pl(LI)           Real power load at a bus
+  71          Ql(LI)           Reactive power load at a bus
+  72          z                Maximum loading in the system
+  73          Bsvc(SVCI)       Shunt susceptance of SVC
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                      11/05/18 17:12:49 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+  74          Pflow(BI,m)
+  75          Qflow(BI,m)
+  76  ;
+  77   
+  78  Variables sv(BI),spg(GI),sqg(GI),spl(LI),sql(LI),sbsvc(SVCI);
+  79  ************************************************************************************************************************************
+  80  ************************************************************************************************************************************
+  81  * Assigning starting point
+  82   
+  83  *execute_loadpoint 'OPF_trial_p.gdx';
+  84  Parameters Vmag_ini(BI),Pg_ini(GI),Qg_ini(GI),Pl_ini(LI),Ql_ini(LI),Vr_ini(BI),Vi_ini(BI),Bsvc_ini(SVCI);
+GDXIN   /home/aditya/Desktop/gams_code/mat2gms_ini.gdx
+--- LOAD  Vmag_ini = 1:Vmag_ini
+--- LOAD  Pg_ini = 2:Pg_ini
+--- LOAD  Qg_ini = 3:Qg_ini
+--- LOAD  Pl_ini = 4:Pl_ini
+--- LOAD  Ql_ini = 5:Ql_ini
+--- LOAD  Vr_ini = 6:Vr_ini
+--- LOAD  Vi_ini = 7:Vi_ini
+--- LOAD  Bsvc_ini = 8:Bsvc_ini
+  88   
+  89  Vmag.l(BI) = Vmag_ini(BI);
+  90  Pg.l(GI) = Pg_ini(GI);
+  91  Qg.l(GI) = Qg_ini(GI);
+  92  Pl.l(LI) = Pl_ini(LI);
+  93  Ql.l(LI) = Ql_ini(LI);
+  94  Vr.l(BI) = Vr_ini(BI);
+  95  Vi.l(BI) = Vi_ini(BI);
+  96   
+  97  ************************************************************************************************************************************
+  98   
+  99  Equations
+ 100  * Power balance constraints
+ 101          obj                     Maximum load the system can handle
+ 102          ePbal(BI)               Real power balance at bus k
+ 103          eQbal(BI)               Reactive power balance at bus
+ 104   
+ 105  * Other Equality constraints
+ 106  *        epf_load(LI)            Equation for constant power factor loads
+ 107          eVmag(BI)               Voltage magnitude
+ 108          erefangle               Slack bus angle
+ 109   
+ 110  * Slack equations
+ 111          sl_V(BI)
+ 112          sl_Pg(GI)
+ 113          sl_Qg(GI)
+ 114          sl_Pl(LI)
+ 115          sl_Ql(LI)
+ 116   
+ 117  * Generator limits
+ 118  *        esmax(GI)
+ 119   
+ 120  * Line flow limits
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                      11/05/18 17:12:49 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+ 121          ePflow(BI,m)
+ 122          eQflow(BI,m)
+ 123   
+ 124  ;
+ 125  ************************************************************************************************************************************
+ 126  ************************************************************************************************************************************
+ 127  * Equation definition
+ 128   
+ 129  obj..                   z =e=  100*sum(GI,sqr(sv(GI)))  + 300*sum(GI,sqr(spg(GI)) + 100*sqr(sqg(GI))) + 1000*sum(LI,sqr(spl(LI))) + 500*sum(LI,sqr(sql(LI))) ;
+ 130   
+ 131  ***********************************************************************************************************************************
+ 132  * Power balance equations
+ 133   
+ 134  *ePbal(BI)..      sum(GI,busgenary(BI,GI)*Pg(GI)) - sum(LI,busloadary(BI,LI)*Pl(LI)*(p1(LI)+p2(LI)*Vmag(LI)+p3(LI)*sqr(Vmag(LI))))
+ 135  *                        - sum(m,G(BI,m)*(Vr(BI)*Vr(m)+Vi(BI)*Vi(m)) + B(BI,m)*(-Vr(BI)*Vi(m)+Vi(BI)*Vr(m))) =e= 0;
+ 136   
+ 137  *eQbal(BI)..      sum(GI,busgenary(BI,GI)*Qg(GI)) - sum(LI,busloadary(BI,LI)*Ql(LI)*(q1(LI)+q2(LI)*Vmag(LI)+q3(LI)*sqr(Vmag(LI))))
+ 138  *                 - sum(m,G(BI,m)*(-Vr(BI)*Vi(m)+Vi(BI)*Vr(m)) + B(BI,m)*(-Vr(BI)*Vr(m)-Vi(BI)*Vi(m))) =e= 0;
+ 139   
+ 140  ePbal(BI)..      sum(GI,busgenary(BI,GI)*Pg(GI)) - sum(LI,busloadary(BI,LI)*Pl(LI))
+ 141                          - sum(m,G(BI,m)*(Vr(BI)*Vr(m)+Vi(BI)*Vi(m)) + B(BI,m)*(-Vr(BI)*Vi(m)+Vi(BI)*Vr(m))) =e= 0;
+ 142   
+ 143  eQbal(BI)..      sum(GI,busgenary(BI,GI)*Qg(GI)) - sum(LI,busloadary(BI,LI)*Ql(LI))
+ 144                   - sum(m,G(BI,m)*(-Vr(BI)*Vi(m)+Vi(BI)*Vr(m)) + B(BI,m)*(-Vr(BI)*Vr(m)-Vi(BI)*Vi(m))) =e= 0;
+ 145  * + sum(SVCI,bussvcary(BI,SVCI)*Bsvc(SVCI)*sqr(Vmag(SVCI)))
+ 146  ***********************************************************************************************************************************
+ 147  * Operating Variable limits
+ 148   
+ 149  Vmag.up(BI) = Vmax(BI);
+ 150   
+ 151  Vmag.lo(BI) = Vmin(BI);
+ 152   
+ 153  Pg.up(GI) = Pgmax(GI);
+ 154   
+ 155  Pg.lo(GI) = Pgmin(GI);
+ 156   
+ 157  Qg.up(GI) = Qgmax(GI);
+ 158   
+ 159  Qg.lo(GI) = Qgmin(GI);
+ 160   
+ 161  Pl.up(LI) = Plmax(LI);
+ 162   
+ 163  Pl.lo(LI) = Plmin(LI);
+ 164   
+ 165  Ql.up(LI) = Qlmax(LI);
+ 166   
+ 167  Ql.lo(LI) = Qlmin(LI);
+ 168   
+ 169  ***************************************************************************
+ 170  * Slack variable limits
+ 171   
+ 172  sv.up(BI) = svmax(BI);
+ 173   
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                      11/05/18 17:12:49 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+ 174  sv.lo(BI) = svmin(BI);
+ 175   
+ 176  spg.up(GI) = spgmax(GI);
+ 177   
+ 178  spg.lo(GI) = spgmin(GI);
+ 179   
+ 180  sqg.up(GI) = sqgmax(GI);
+ 181   
+ 182  sqg.lo(GI) = sqgmin(GI);
+ 183   
+ 184  spl.up(LI) = splmax(LI);
+ 185   
+ 186  spl.lo(LI) = splmin(LI);
+ 187   
+ 188  sql.up(LI) = sqlmax(LI);
+ 189   
+ 190  sql.lo(LI) = sqlmin(LI);
+ 191   
+ 192  ***************************************************************************
+ 193  * Soft constraints
+ 194   
+ 195  sl_V(BI)..               Vmag(BI)  =e= Vmag_ini(BI) + sv(BI);
+ 196   
+ 197  sl_Pg(GI)..              Pg(GI)   =e= Pg_ini(GI) + spg(GI);
+ 198   
+ 199  sl_Qg(GI)..              Qg(GI)  =e= Qg_ini(GI) + sqg(GI);
+ 200   
+ 201  sl_Pl(LI)..              Pl(LI)   =e= Pl_ini(LI) + spl(LI);
+ 202   
+ 203  sl_Ql(LI)..              Ql(LI)   =e= Ql_ini(LI) + sql(LI);
+ 204   
+ 205  ***********************************************************************************************************************************
+ 206  * Other equality constraints
+ 207   
+ 208  *epf_load(LI)..                         Ql(LI)*pf(LI) =e= Pl(LI)*sqrt(1-sqr(pf(LI)));
+ 209   
+ 210  erefangle..                             Vi("B1") =e= 0;
+ 211   
+ 212  eVmag(BI)..                             sqr(Vmag(BI)) =e= sqr(Vr(BI))+sqr(Vi(BI));
+ 213   
+ 214  ePflow(BI,m)$(brnchary(BI,m) eq 1)..    Vr(BI)*(-G(BI,m)*(Vr(BI)-Vr(m))+B(BI,m)*(Vi(BI)-Vi(m))) +
+ 215                                          Vi(BI)*(-G(BI,m)*(Vi(BI)-Vi(m))-B(BI,m)*(Vr(BI)-Vr(m))) =e= Pflow(BI,m);
+ 216   
+ 217  eQflow(BI,m)$(brnchary(BI,m) eq 1)..    Vi(BI)*(-G(BI,m)*(Vr(BI)-Vr(m))+B(BI,m)*(Vi(BI)-Vi(m))) -
+ 218                                          Vr(BI)*(-G(BI,m)*(Vi(BI)-Vi(m))-B(BI,m)*(Vr(BI)-Vr(m))) =e= Qflow(BI,m);
+ 219   
+ 220  ***********************************************************************************************************************************
+ 221  Model OPF_trial /all/;
+ 222   
+ 223  option nlp=conopt;
+ 224  option limrow=15;
+ 225  *OPF_trial.optfile=1;
+ 226  Solve OPF_trial using NLP minimizing z;
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                      11/05/18 17:12:49 Page 6
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+ 227   
+ 228  parameters model_status,solver_status;
+ 229  model_status = OPF_trial.modelstat;
+ 230  solver_status = OPF_trial.solvestat;
+ 231   
+ 232   
+ 233  execute_unload 'matsol.gdx', model_status,solver_status,Vmag,Vr,Vi,Pg,Qg,Pl,Ql,Pflow,Qflow,Bsvc,sv,spg,sqg,spl,sql,sbsvc;
+ 234  ***********************************************************************************************************************************
+ 235   
+ 236   
+
+**** LIST OF STRAY NAMES - CHECK DECLARATIONS FOR SPURIOUS COMMAS
+**** STRAY NAME BrI OF TYPE SET  
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                      11/05/18 17:12:49 Page 7
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Include File Summary
+
+
+   SEQ   GLOBAL TYPE      PARENT   LOCAL  FILENAME
+
+     1        1 INPUT          0       0  /home/aditya/Desktop/gams_code/14busopf_slack.gms
+     2        7 GDXIN          1       7  /home/aditya/Desktop/gams_code/mat2gms_sets.gdx
+     3       34 GDXIN          1      34  /home/aditya/Desktop/gams_code/mat2gms_Ybus.gdx
+     4       39 GDXIN          1      39  /home/aditya/Desktop/gams_code/mat2gms_tables.gdx
+     5       44 GDXIN          1      44  /home/aditya/Desktop/gams_code/mat2gms_varlim.gdx
+     6       49 GDXIN          1      49  /home/aditya/Desktop/gams_code/mat2gms_slack.gdx
+     7       54 GDXIN          1      54  /home/aditya/Desktop/gams_code/mat2gms_zip_para.gdx
+     8       85 GDXIN          1      85  /home/aditya/Desktop/gams_code/mat2gms_ini.gdx
+
+
+COMPILATION TIME     =        0.002 SECONDS      3 MB  24.5.6 r55090 LEX-LEG
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                      11/05/18 17:12:49 Page 8
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE OPF_trial Using NLP From line 226
+
+
+---- obj  =E=  Maximum load the system can handle
+
+obj..  z + (0)*sv(B1) + (0)*sv(B2) + (0)*sv(B3) + (0)*spg(B1) + (0)*spg(B2) + (0)*spg(B3) + (0)*sqg(B1) + (0)*sqg(B2) + (0)*sqg(B3) + (0)*spl(B4) + (0)*spl(B8) + (0)*sql(B4) + (0)*sql(B8) =E= 0 ; (LHS = 0)
+     
+
+---- ePbal  =E=  Real power balance at bus k
+
+ePbal(B1)..  (96.0622726775745)*Vr(B1) - (117.237308619187)*Vr(B5) - (514.068347912027)*Vi(B1) + (465.595840864474)*Vi(B5) + Pg(B1) =E= 0 ; (LHS = -0.0351265373535981, INFES = 0.0351265373535981 ****)
+     
+ePbal(B2)..  (15.0010891171055)*Vr(B2) - (26.8870367778968)*Vr(B6) - (219.304982492325)*Vi(B2) + (199.453298100354)*Vi(B6) + Pg(B2) =E= 0 ; (LHS = 0.00327968223439434, INFES = 0.00327968223439434 ****)
+     
+ePbal(B3)..  - (40.1358508561059)*Vr(B3) + (26.6829997189827)*Vr(B7) - (135.151541970882)*Vi(B3) + (128.600904160291)*Vi(B7) + Pg(B3) =E= 0 ; (LHS = -0.00387664119262432, INFES = 0.00387664119262432 ****)
+     
+ePbal(B4)..  - (462.056184846967)*Vr(B4) + (545.601461904777)*Vr(B10) - (717.677621543558)*Vi(B4) + (774.713221541731)*Vi(B10) - Pl(B4) =E= 0 ; (LHS = -0.00476140501005773, INFES = 0.00476140501005773 ****)
+     
+ePbal(B5)..  - (96.0622726775745)*Vr(B1) + (134.675202779517)*Vr(B5) - (49.5587930471674)*Vr(B6) + (514.068347912027)*Vi(B1) - (720.525135909694)*Vi(B5) + (265.20928722748)*Vi(B6) =E= 0 ; (LHS = 0.0350337621658099, INFES = 0.0350337621658099 ****)
+     
+ePbal(B6)..  - (15.0010891171055)*Vr(B2) - (17.4378941603302)*Vr(B5) + (32.692503375983)*Vr(B6) - (2.30503979607169)*Vr(B7) + (219.304982492325)*Vi(B2) + (254.929295045221)*Vi(B5) - (586.090609958407)*Vi(B6) + (141.747440292279)*Vi(B7) =E= 0 ;
+     
+      (LHS = -0.00701797945789906, INFES = 0.00701797945789906 ****)
+     
+ePbal(B7)..  (40.1358508561059)*Vr(B3) + (41.3932401654003)*Vr(B6) - (223.773055518815)*Vr(B7) + (79.5024638682427)*Vr(B8) + (79.7268358264786)*Vr(B9) + (135.151541970882)*Vi(B3) + (116.753199307311)*Vi(B6) - (730.919130378332)*Vi(B7)
+     
+      + (267.712789266624)*Vi(B8) + (268.468328653077)*Vi(B9) =E= 0 ; (LHS = 0.00734155229289257, INFES = 0.00734155229289257 ****)
+     
+ePbal(B8)..  (95.4950035985274)*Vr(B7) - (79.5024638682427)*Vr(B8) + (231.955935318069)*Vi(B7) - (267.712789266624)*Vi(B8) - Pl(B8) =E= 0 ; (LHS = 6.49739486711098E-5, INFES = 6.49739486711098E-5 ****)
+     
+ePbal(B9)..  (106.260178281057)*Vr(B7) - (282.170422332948)*Vr(B9) + (170.222933712248)*Vr(B10) + (233.289675930955)*Vi(B7) - (440.193669825947)*Vi(B9) + (194.408550120683)*Vi(B10) =E= 0 ; (LHS = 0.00311660046842732, INFES = 0.00311660046842732 ****)
+     
+ePbal(B10)..  (462.056184846967)*Vr(B4) + (184.614365882891)*Vr(B9) - (697.995174993447)*Vr(B10) + (717.677621543558)*Vi(B4) + (157.72633215702)*Vi(B9) - (955.122762646564)*Vi(B10) =E= 0 ; (LHS = 3.10086149752919E-5, INFES = 3.10086149752919E-5 ****)
+     
+
+---- eQbal  =E=  Reactive power balance at bus
+
+eQbal(B1)..  - (537.329669102151)*Vr(B1) + (465.595840864474)*Vr(B5) - (168.680371014065)*Vi(B1) + (117.237308619187)*Vi(B5) + Qg(B1) =E= 0 ; (LHS = -0.01312197273446, INFES = 0.01312197273446 ****)
+     
+eQbal(B2)..  - (231.095952619746)*Vr(B2) + (199.453298100354)*Vr(B6) - (45.7146103598935)*Vi(B2) + (26.8870367778968)*Vi(B6) + Qg(B2) =E= 0 ; (LHS = -0.137419143332949, INFES = 0.137419143332949 ****)
+     
+eQbal(B3)..  - (149.87450949367)*Vr(B3) + (128.600904160291)*Vr(B7) + (19.0033138394387)*Vi(B3) - (26.6829997189827)*Vi(B7) + Qg(B3) =E= 0 ; (LHS = 0.00538250686908359, INFES = 0.00538250686908359 ****)
+     
+eQbal(B4)..  - (676.806177231558)*Vr(B4) + (774.713221541731)*Vr(B10) + (520.026446581632)*Vi(B4) - (545.601461904777)*Vi(B10) - Ql(B4) =E= 0 ; (LHS = 0.0157449341596703, INFES = 0.0157449341596703 ****)
+     
+eQbal(B5)..  (514.068347912027)*Vr(B1) - (720.483265935756)*Vr(B5) + (265.20928722748)*Vr(B6) + (96.0622726775745)*Vi(B1) - (134.601329399512)*Vi(B5) + (49.5587930471674)*Vi(B6) =E= 0 ; (LHS = 0.0295307629915555, INFES = 0.0295307629915555 ****)
+     
+eQbal(B6)..  (219.304982492325)*Vr(B2) + (254.929295045221)*Vr(B5) - (586.157522385731)*Vr(B6) + (141.747440292279)*Vr(B7) + (15.0010891171055)*Vi(B2) + (17.4378941603302)*Vi(B5) - (32.7108449383123)*Vi(B6) + (2.30503979607169)*Vi(B7) =E= 0 ;
+     
+      (LHS = -0.0347555523001688, INFES = 0.0347555523001688 ****)
+     
+eQbal(B7)..  (135.151541970882)*Vr(B3) + (116.753199307311)*Vr(B6) - (730.996459007382)*Vr(B7) + (267.712789266624)*Vr(B8) + (268.468328653077)*Vr(B9) - (40.1358508561059)*Vi(B3) - (41.3932401654003)*Vi(B6) + (223.813169987521)*Vi(B7)
+     
+      - (79.5024638682427)*Vi(B8) - (79.7268358264786)*Vi(B9) =E= 0 ; (LHS = -0.0382018082531204, INFES = 0.0382018082531204 ****)
+     
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                      11/05/18 17:12:49 Page 9
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE OPF_trial Using NLP From line 226
+
+
+     eQbal  =E=  Reactive power balance at bus
+
+eQbal(B8)..  (231.955935318069)*Vr(B7) - (204.563412397084)*Vr(B8) - (95.4950035985274)*Vi(B7) + (114.931093158575)*Vi(B8) - Ql(B8) =E= 0 ; (LHS = 0.0121194962348135, INFES = 0.0121194962348135 ****)
+     
+eQbal(B9)..  (233.289675930955)*Vr(B7) - (440.133516785365)*Vr(B9) + (194.408550120683)*Vr(B10) - (106.260178281057)*Vi(B7) + (282.151401865847)*Vi(B9) - (170.222933712248)*Vi(B10) =E= 0 ; (LHS = 0.0255984244013803, INFES = 0.0255984244013803 ****)
+     
+eQbal(B10)..  (717.677621543558)*Vr(B4) + (157.72633215702)*Vr(B9) - (955.169060653161)*Vr(B10) - (462.056184846967)*Vi(B4) - (184.614365882891)*Vi(B9) + (698.025078654483)*Vi(B10) =E= 0 ; (LHS = -0.0211698966545555, INFES = 0.0211698966545555 ****)
+     
+
+---- eVmag  =E=  Voltage magnitude
+
+eVmag(B1)..  - (1.92161749064352)*Vr(B1) - (0.48386442280136)*Vi(B1) + (1.9816)*Vmag(B1) =E= 0 ; (LHS = 0)
+     
+eVmag(B2)..  - (1.85482292654967)*Vr(B2) - (0.250036939562339)*Vi(B2) + (1.8716)*Vmag(B2) =E= 0 ; (LHS = 0)
+     
+eVmag(B3)..  - (1.62929824990213)*Vr(B3) + (0.338058002221276)*Vi(B3) + (1.664)*Vmag(B3) =E= 0 ; (LHS = 0)
+     
+eVmag(B4)..  - (1.39448379877512)*Vr(B4) + (0.982082631428599)*Vi(B4) + (1.7056)*Vmag(B4) =E= 0 ; (LHS = 0)
+     
+eVmag(B5)..  - (2.12167429781984)*Vr(B5) - (0.396470344377339)*Vi(B5) + (2.1584)*Vmag(B5) =E= 0 ; (LHS = 0)
+     
+eVmag(B6)..  - (2.03943436036176)*Vr(B6) - (0.139503153282642)*Vi(B6) + (2.0442)*Vmag(B6) =E= 0 ; (LHS = 0)
+     
+eVmag(B7)..  - (1.71229100014933)*Vr(B7) + (0.508497758901281)*Vi(B7) + (1.7862)*Vmag(B7) =E= 0 ; (LHS = 0)
+     
+eVmag(B8)..  - (1.48359016229437)*Vr(B8) + (0.610786043016181)*Vi(B8) + (1.6044)*Vmag(B8) =E= 0 ; (LHS = 0)
+     
+eVmag(B9)..  - (1.48792155308763)*Vr(B9) + (0.677727417076582)*Vi(B9) + (1.635)*Vmag(B9) =E= 0 ; (LHS = 0)
+     
+eVmag(B10)..  - (1.2918197187784)*Vr(B10) + (0.831701132724541)*Vi(B10) + (1.5364)*Vmag(B10) =E= 0 ; (LHS = 0)
+     
+
+---- erefangle  =E=  Slack bus angle
+
+erefangle..  Vi(B1) =E= 0 ; (LHS = 0.24193221140068, INFES = 0.24193221140068 ****)
+     
+
+---- sl_V  =E=  
+
+sl_V(B1)..  Vmag(B1) - sv(B1) =E= 0.9908 ; (LHS = 0.9908)
+     
+sl_V(B2)..  Vmag(B2) - sv(B2) =E= 0.9358 ; (LHS = 0.9358)
+     
+sl_V(B3)..  Vmag(B3) - sv(B3) =E= 0.832 ; (LHS = 0.832)
+     
+sl_V(B4)..  Vmag(B4) - sv(B4) =E= 0.8528 ; (LHS = 0.8528)
+     
+sl_V(B5)..  Vmag(B5) - sv(B5) =E= 1.0792 ; (LHS = 1.0792)
+     
+sl_V(B6)..  Vmag(B6) - sv(B6) =E= 1.0221 ; (LHS = 1.0221)
+     
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 10
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE OPF_trial Using NLP From line 226
+
+
+     sl_V  =E=  
+
+sl_V(B7)..  Vmag(B7) - sv(B7) =E= 0.8931 ; (LHS = 0.8931)
+     
+sl_V(B8)..  Vmag(B8) - sv(B8) =E= 0.8022 ; (LHS = 0.8022)
+     
+sl_V(B9)..  Vmag(B9) - sv(B9) =E= 0.8175 ; (LHS = 0.8175)
+     
+sl_V(B10)..  Vmag(B10) - sv(B10) =E= 0.7682 ; (LHS = 0.7682)
+     
+
+---- sl_Pg  =E=  
+
+sl_Pg(B1)..  Pg(B1) - spg(B1) =E= 32.037094 ; (LHS = 32.037094)
+     
+sl_Pg(B2)..  Pg(B2) - spg(B2) =E= 13.508271 ; (LHS = 13.508271)
+     
+sl_Pg(B3)..  Pg(B3) - spg(B3) =E= 9.848229 ; (LHS = 9.848229)
+     
+
+---- sl_Qg  =E=  
+
+sl_Qg(B1)..  Qg(B1) - sqg(B1) =E= 19.946047 ; (LHS = 19.946047)
+     
+sl_Qg(B2)..  Qg(B2) - sqg(B2) =E= 7.407176 ; (LHS = 7.25, INFES = 0.157176 ****)
+     
+sl_Qg(B3)..  Qg(B3) - sqg(B3) =E= 4.216403 ; (LHS = 4.216403)
+     
+
+---- sl_Pl  =E=  
+
+sl_Pl(B4)..  Pl(B4) - spl(B4) =E= 30.249193 ; (LHS = 30.249193)
+     
+sl_Pl(B8)..  Pl(B8) - spl(B8) =E= 22.783016 ; (LHS = 22.783016)
+     
+
+---- sl_Ql  =E=  
+
+sl_Ql(B4)..  Ql(B4) - sql(B4) =E= 0 ; (LHS = 0)
+     
+sl_Ql(B8)..  Ql(B8) - sql(B8) =E= 18.000001 ; (LHS = 18.000001)
+     
+
+---- ePflow  =E=  
+
+ePflow(B1,B5)..  - (96.0622726775745)*Vr(B1) + (117.237308619187)*Vr(B5) + (514.068347912027)*Vi(B1) - (465.595840864474)*Vi(B5) - Pflow(B1,B5) =E= 0 ; (LHS = 32.0722205373536, INFES = 32.0722205373536 ****)
+     
+ePflow(B2,B6)..  - (15.0010891171055)*Vr(B2) + (26.8870367778968)*Vr(B6) + (219.304982492325)*Vi(B2) - (199.453298100354)*Vi(B6) - Pflow(B2,B6) =E= 0 ; (LHS = 13.5049913177656, INFES = 13.5049913177656 ****)
+     
+ePflow(B3,B7)..  (40.1358508561059)*Vr(B3) - (26.6829997189827)*Vr(B7) + (135.151541970882)*Vi(B3) - (128.600904160291)*Vi(B7) - Pflow(B3,B7) =E= 0 ; (LHS = 9.85210564119263, INFES = 9.85210564119263 ****)
+     
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 11
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE OPF_trial Using NLP From line 226
+
+
+     ePflow  =E=  
+
+ePflow(B4,B10)..  (462.056184846967)*Vr(B4) - (545.601461904777)*Vr(B10) + (717.677621543558)*Vi(B4) - (774.713221541731)*Vi(B10) - Pflow(B4,B10) =E= 0 ; (LHS = -30.24443159499, INFES = 30.24443159499 ****)
+     
+ePflow(B5,B1)..  (96.0622726775745)*Vr(B1) - (117.237308619187)*Vr(B5) - (514.068347912027)*Vi(B1) + (465.595840864474)*Vi(B5) - Pflow(B5,B1) =E= 0 ; (LHS = -32.0722205373536, INFES = 32.0722205373536 ****)
+     
+ePflow(B5,B6)..  - (17.4378941603302)*Vr(B5) + (49.5587930471674)*Vr(B6) + (254.929295045221)*Vi(B5) - (265.20928722748)*Vi(B6) - Pflow(B5,B6) =E= 0 ; (LHS = 32.0371867751878, INFES = 32.0371867751878 ****)
+     
+ePflow(B6,B2)..  (15.0010891171055)*Vr(B2) - (26.8870367778968)*Vr(B6) - (219.304982492325)*Vi(B2) + (199.453298100354)*Vi(B6) - Pflow(B6,B2) =E= 0 ; (LHS = -13.5049913177656, INFES = 13.5049913177656 ****)
+     
+ePflow(B6,B5)..  (17.4378941603302)*Vr(B5) - (49.5587930471674)*Vr(B6) - (254.929295045221)*Vi(B5) + (265.20928722748)*Vi(B6) - Pflow(B6,B5) =E= 0 ; (LHS = -32.0371867751878, INFES = 32.0371867751878 ****)
+     
+ePflow(B6,B7)..  (43.7533264490812)*Vr(B6) + (2.30503979607169)*Vr(B7) + (121.428024630572)*Vi(B6) - (141.747440292279)*Vi(B7) - Pflow(B6,B7) =E= 0 ; (LHS = 45.5491960724113, INFES = 45.5491960724113 ****)
+     
+ePflow(B7,B3)..  - (40.1358508561059)*Vr(B3) + (26.6829997189827)*Vr(B7) - (135.151541970882)*Vi(B3) + (128.600904160291)*Vi(B7) - Pflow(B7,B3) =E= 0 ; (LHS = -9.85210564119263, INFES = 9.85210564119263 ****)
+     
+ePflow(B7,B6)..  - (41.3932401654003)*Vr(B6) - (4.66512607975267)*Vr(B7) - (116.753199307311)*Vi(B6) + (137.072614969017)*Vi(B7) - Pflow(B7,B6) =E= 0 ; (LHS = -44.5988516646591, INFES = 44.5988516646591 ****)
+     
+ePflow(B7,B8)..  (95.4950035985274)*Vr(B7) - (79.5024638682427)*Vr(B8) + (231.955935318069)*Vi(B7) - (267.712789266624)*Vi(B8) - Pflow(B7,B8) =E= 0 ; (LHS = 22.7830809739487, INFES = 22.7830809739487 ****)
+     
+ePflow(B7,B9)..  (106.260178281057)*Vr(B7) - (79.7268358264786)*Vr(B9) + (233.289675930955)*Vi(B7) - (268.468328653077)*Vi(B9) - Pflow(B7,B9) =E= 0 ; (LHS = 31.6605347796102, INFES = 31.6605347796102 ****)
+     
+ePflow(B8,B7)..  - (95.4950035985274)*Vr(B7) + (79.5024638682427)*Vr(B8) - (231.955935318069)*Vi(B7) + (267.712789266624)*Vi(B8) - Pflow(B8,B7) =E= 0 ; (LHS = -22.7830809739487, INFES = 22.7830809739487 ****)
+     
+ePflow(B9,B7)..  - (106.260178281057)*Vr(B7) + (79.7268358264786)*Vr(B9) - (233.289675930955)*Vi(B7) + (268.468328653077)*Vi(B9) - Pflow(B9,B7) =E= 0 ; (LHS = -31.6605347796102, INFES = 31.6605347796102 ****)
+     
+REMAINING 3 ENTRIES SKIPPED
+
+
+---- eQflow  =E=  
+
+eQflow(B1,B5)..  (417.12333381692)*Vr(B1) - (465.595840864474)*Vr(B5) + (138.4123445608)*Vi(B1) - (117.237308619187)*Vi(B5) - Qflow(B1,B5) =E= 0 ; (LHS = -41.4498854071168, INFES = 41.4498854071168 ****)
+     
+eQflow(B2,B6)..  (179.601613708383)*Vr(B2) - (199.453298100354)*Vr(B6) + (38.7729844386882)*Vi(B2) - (26.8870367778968)*Vi(B6) - Qflow(B2,B6) =E= 0 ; (LHS = -16.924716681977, INFES = 16.924716681977 ****)
+     
+eQflow(B3,B7)..  (122.050266349701)*Vr(B3) - (128.600904160291)*Vr(B7) - (13.2301485818596)*Vi(B3) + (26.6829997189827)*Vi(B7) - Qflow(B3,B7) =E= 0 ; (LHS = -7.61039335006696, INFES = 7.61039335006696 ****)
+     
+eQflow(B4,B10)..  (831.748821539904)*Vr(B4) - (774.713221541731)*Vr(B10) - (629.146738962588)*Vi(B4) + (545.601461904777)*Vi(B10) - Qflow(B4,B10) =E= 0 ; (LHS = 80.791792843618, INFES = 80.791792843618 ****)
+     
+eQflow(B5,B1)..  - (514.068347912027)*Vr(B1) + (562.54085495958)*Vr(B5) - (96.0622726775745)*Vi(B1) + (74.887236735962)*Vi(B5) - Qflow(B5,B1) =E= 0 ; (LHS = 47.2237992808557, INFES = 47.2237992808557 ****)
+     
+eQflow(B5,B6)..  (275.48927940974)*Vr(B5) - (265.20928722748)*Vr(B6) + (81.6796919340046)*Vi(B5) - (49.5587930471674)*Vi(B6) - Qflow(B5,B6) =E= 0 ; (LHS = 17.2728895191315, INFES = 17.2728895191315 ****)
+     
+eQflow(B6,B2)..  - (219.304982492325)*Vr(B2) + (239.156666884296)*Vr(B6) - (15.0010891171055)*Vi(B2) + (3.11514145631413)*Vi(B6) - Qflow(B6,B2) =E= 0 ; (LHS = 19.4140400408053, INFES = 19.4140400408053 ****)
+     
+eQflow(B6,B5)..  - (254.929295045221)*Vr(B5) + (244.649302862961)*Vr(B6) - (17.4378941603302)*Vi(B5) - (14.683004726507)*Vi(B6) - Qflow(B6,B5) =E= 0 ; (LHS = -12.7231679808686, INFES = 12.7231679808686 ****)
+     
+eQflow(B6,B7)..  (162.066855953986)*Vr(B6) - (141.747440292279)*Vr(B7) + (48.3634060412246)*Vi(B6) - (2.30503979607169)*Vi(B7) - Qflow(B6,B7) =E= 0 ; (LHS = 23.9327009046015, INFES = 23.9327009046015 ****)
+     
+eQflow(B7,B3)..  - (135.151541970882)*Vr(B3) + (141.702179781472)*Vr(B7) + (40.1358508561059)*Vi(B3) - (53.588701993229)*Vi(B7) - Qflow(B7,B3) =E= 0 ; (LHS = 9.02867141118583, INFES = 9.02867141118583 ****)
+     
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 12
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE OPF_trial Using NLP From line 226
+
+
+     eQflow  =E=  
+
+eQflow(B7,B6)..  - (116.753199307311)*Vr(B6) + (96.4337836456042)*Vr(B7) + (41.3932401654003)*Vi(B6) - (87.4516064105532)*Vi(B7) - Qflow(B7,B6) =E= 0 ; (LHS = -5.68608827575938, INFES = 5.68608827575938 ****)
+     
+eQflow(B7,B8)..  (303.469643215178)*Vr(B7) - (267.712789266624)*Vr(B8) - (63.5099241379581)*Vi(B7) + (79.5024638682427)*Vi(B8) - Qflow(B7,B8) =E= 0 ; (LHS = 26.5469842988872, INFES = 26.5469842988872 ****)
+     
+eQflow(B7,B9)..  (303.646981375199)*Vr(B7) - (268.468328653077)*Vr(B9) - (53.1934933719001)*Vi(B7) + (79.7268358264786)*Vi(B9) - Qflow(B7,B9) =E= 0 ; (LHS = 23.3719726395775, INFES = 23.3719726395775 ****)
+     
+eQflow(B8,B7)..  - (231.955935318069)*Vr(B7) + (196.199081369515)*Vr(B8) + (95.4950035985274)*Vi(B7) - (111.487543328812)*Vi(B8) - Qflow(B8,B7) =E= 0 ; (LHS = -21.6402483465162, INFES = 21.6402483465162 ****)
+     
+eQflow(B9,B7)..  - (233.289675930955)*Vr(B7) + (198.111023208833)*Vr(B9) + (106.260178281057)*Vi(B7) - (132.793520735636)*Vi(B9) - Qflow(B9,B7) =E= 0 ; (LHS = -17.1803509728402, INFES = 17.1803509728402 ****)
+     
+REMAINING 3 ENTRIES SKIPPED
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 13
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE OPF_trial Using NLP From line 226
+
+
+---- Vr  Bus voltage(real part)
+
+Vr(B1)
+                (.LO, .L, .UP, .M = -INF, 0.960808745321761, +INF, 0)
+      (96.0623) ePbal(B1)
+     (-96.0623) ePbal(B5)
+    (-537.3297) eQbal(B1)
+     (514.0683) eQbal(B5)
+      (-1.9216) eVmag(B1)
+     (-96.0623) ePflow(B1,B5)
+      (96.0623) ePflow(B5,B1)
+     (417.1233) eQflow(B1,B5)
+    (-514.0683) eQflow(B5,B1)
+
+Vr(B2)
+                (.LO, .L, .UP, .M = -INF, 0.927411463274837, +INF, 0)
+      (15.0011) ePbal(B2)
+     (-15.0011) ePbal(B6)
+    (-231.096)  eQbal(B2)
+     (219.305)  eQbal(B6)
+      (-1.8548) eVmag(B2)
+     (-15.0011) ePflow(B2,B6)
+      (15.0011) ePflow(B6,B2)
+     (179.6016) eQflow(B2,B6)
+    (-219.305)  eQflow(B6,B2)
+
+Vr(B3)
+                (.LO, .L, .UP, .M = -INF, 0.814649124951067, +INF, 0)
+     (-40.1359) ePbal(B3)
+      (40.1359) ePbal(B7)
+    (-149.8745) eQbal(B3)
+     (135.1515) eQbal(B7)
+      (-1.6293) eVmag(B3)
+      (40.1359) ePflow(B3,B7)
+     (-40.1359) ePflow(B7,B3)
+     (122.0503) eQflow(B3,B7)
+    (-135.1515) eQflow(B7,B3)
+
+REMAINING 7 ENTRIES SKIPPED
+
+---- Vi  Bus voltage(imaginary part)
+
+Vi(B1)
+                (.LO, .L, .UP, .M = -INF, 0.24193221140068, +INF, 0)
+    (-514.0683) ePbal(B1)
+     (514.0683) ePbal(B5)
+    (-168.6804) eQbal(B1)
+      (96.0623) eQbal(B5)
+      (-0.4839) eVmag(B1)
+        1       erefangle
+     (514.0683) ePflow(B1,B5)
+    (-514.0683) ePflow(B5,B1)
+     (138.4123) eQflow(B1,B5)
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 14
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE OPF_trial Using NLP From line 226
+
+
+     Vi  Bus voltage(imaginary part)
+
+     (-96.0623) eQflow(B5,B1)
+
+Vi(B2)
+                (.LO, .L, .UP, .M = -INF, 0.125018469781169, +INF, 0)
+    (-219.305)  ePbal(B2)
+     (219.305)  ePbal(B6)
+     (-45.7146) eQbal(B2)
+      (15.0011) eQbal(B6)
+      (-0.25)   eVmag(B2)
+     (219.305)  ePflow(B2,B6)
+    (-219.305)  ePflow(B6,B2)
+      (38.773)  eQflow(B2,B6)
+     (-15.0011) eQflow(B6,B2)
+
+Vi(B3)
+                (.LO, .L, .UP, .M = -INF, -0.169029001110638, +INF, 0)
+    (-135.1515) ePbal(B3)
+     (135.1515) ePbal(B7)
+      (19.0033) eQbal(B3)
+     (-40.1359) eQbal(B7)
+       (0.3381) eVmag(B3)
+     (135.1515) ePflow(B3,B7)
+    (-135.1515) ePflow(B7,B3)
+     (-13.2301) eQflow(B3,B7)
+      (40.1359) eQflow(B7,B3)
+
+REMAINING 7 ENTRIES SKIPPED
+
+---- Vmag  Voltage magnitude at a bus
+
+Vmag(B1)
+                (.LO, .L, .UP, .M = 0.7, 0.9908, 1.15, 0)
+       (1.9816) eVmag(B1)
+        1       sl_V(B1)
+
+Vmag(B2)
+                (.LO, .L, .UP, .M = 0.7, 0.9358, 1.15, 0)
+       (1.8716) eVmag(B2)
+        1       sl_V(B2)
+
+Vmag(B3)
+                (.LO, .L, .UP, .M = 0.7, 0.832, 1.15, 0)
+       (1.664)  eVmag(B3)
+        1       sl_V(B3)
+
+REMAINING 7 ENTRIES SKIPPED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 15
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE OPF_trial Using NLP From line 226
+
+
+---- Pg  Real power generation at a bus
+
+Pg(B1)
+                (.LO, .L, .UP, .M = 0.1, 32.037094, 50, 0)
+        1       ePbal(B1)
+        1       sl_Pg(B1)
+
+Pg(B2)
+                (.LO, .L, .UP, .M = 0.1, 13.508271, 50, 0)
+        1       ePbal(B2)
+        1       sl_Pg(B2)
+
+Pg(B3)
+                (.LO, .L, .UP, .M = 0.1, 9.848229, 30, 0)
+        1       ePbal(B3)
+        1       sl_Pg(B3)
+
+
+---- Qg  Reactive power generation at a bus
+
+Qg(B1)
+                (.LO, .L, .UP, .M = -99.99, 19.946047, 99.99, 0)
+        1       eQbal(B1)
+        1       sl_Qg(B1)
+
+Qg(B2)
+                (.LO, .L, .UP, .M = -2, 7.25, 7.25, 0)
+        1       eQbal(B2)
+        1       sl_Qg(B2)
+        7.4072  (OLD LEVEL ****)
+
+Qg(B3)
+                (.LO, .L, .UP, .M = -2, 4.216403, 7, 0)
+        1       eQbal(B3)
+        1       sl_Qg(B3)
+
+
+---- Pl  Real power load at a bus
+
+Pl(B4)
+                (.LO, .L, .UP, .M = 15.1245965, 30.249193, 45.3737895, 0)
+       -1       ePbal(B4)
+        1       sl_Pl(B4)
+
+Pl(B8)
+                (.LO, .L, .UP, .M = 11.391508, 22.783016, 34.174524, 0)
+       -1       ePbal(B8)
+        1       sl_Pl(B8)
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 16
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE OPF_trial Using NLP From line 226
+
+
+---- Ql  Reactive power load at a bus
+
+Ql(B4)
+                (.LO, .L, .UP, .M = 0, 0, 0, 0)
+       -1       eQbal(B4)
+        1       sl_Ql(B4)
+
+Ql(B8)
+                (.LO, .L, .UP, .M = 9.0000005, 18.000001, 27.0000015, 0)
+       -1       eQbal(B8)
+        1       sl_Ql(B8)
+
+
+---- z  Maximum loading in the system
+
+z
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       obj
+
+
+---- Pflow  
+
+Pflow(B1,B5)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       ePflow(B1,B5)
+
+Pflow(B2,B6)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       ePflow(B2,B6)
+
+Pflow(B3,B7)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       ePflow(B3,B7)
+
+REMAINING 15 ENTRIES SKIPPED
+
+---- Qflow  
+
+Qflow(B1,B5)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       eQflow(B1,B5)
+
+Qflow(B2,B6)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       eQflow(B2,B6)
+
+Qflow(B3,B7)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       eQflow(B3,B7)
+
+REMAINING 15 ENTRIES SKIPPED
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 17
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE OPF_trial Using NLP From line 226
+
+
+---- sv  
+
+sv(B1)
+                (.LO, .L, .UP, .M = -0.01, 0, 0.01, 0)
+       (0)      obj
+       -1       sl_V(B1)
+
+sv(B2)
+                (.LO, .L, .UP, .M = -0.01, 0, 0.01, 0)
+       (0)      obj
+       -1       sl_V(B2)
+
+sv(B3)
+                (.LO, .L, .UP, .M = -0.01, 0, 0.01, 0)
+       (0)      obj
+       -1       sl_V(B3)
+
+REMAINING 7 ENTRIES SKIPPED
+
+---- spg  
+
+spg(B1)
+                (.LO, .L, .UP, .M = -3.2037094, 0, 3.2037094, 0)
+       (0)      obj
+       -1       sl_Pg(B1)
+
+spg(B2)
+                (.LO, .L, .UP, .M = -1.3508271, 0, 1.3508271, 0)
+       (0)      obj
+       -1       sl_Pg(B2)
+
+spg(B3)
+                (.LO, .L, .UP, .M = -0.9848229, 0, 0.9848229, 0)
+       (0)      obj
+       -1       sl_Pg(B3)
+
+
+---- sqg  
+
+sqg(B1)
+                (.LO, .L, .UP, .M = -1.9946047, 0, 1.9946047, 0)
+       (0)      obj
+       -1       sl_Qg(B1)
+
+sqg(B2)
+                (.LO, .L, .UP, .M = -0.7407176, 0, 0.7407176, 0)
+       (0)      obj
+       -1       sl_Qg(B2)
+
+sqg(B3)
+                (.LO, .L, .UP, .M = -0.4216403, 0, 0.4216403, 0)
+       (0)      obj
+       -1       sl_Qg(B3)
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 18
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE OPF_trial Using NLP From line 226
+
+
+     sqg  
+
+
+
+---- spl  
+
+spl(B4)
+                (.LO, .L, .UP, .M = -1.51245965, 0, 1.51245965, 0)
+       (0)      obj
+       -1       sl_Pl(B4)
+
+spl(B8)
+                (.LO, .L, .UP, .M = -1.1391508, 0, 1.1391508, 0)
+       (0)      obj
+       -1       sl_Pl(B8)
+
+
+---- sql  
+
+sql(B4)
+                (.LO, .L, .UP, .M = 0, 0, 0, 0)
+       (0)      obj
+       -1       sl_Ql(B4)
+
+sql(B8)
+                (.LO, .L, .UP, .M = -0.90000005, 0, 0.90000005, 0)
+       (0)      obj
+       -1       sl_Ql(B8)
+
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 19
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE OPF_trial Using NLP From line 226
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          12     SINGLE EQUATIONS           88
+BLOCKS OF VARIABLES          15     SINGLE VARIABLES           97  1 projected
+NON ZERO ELEMENTS           387     NON LINEAR N-Z            299
+DERIVATIVE POOL              20     CONSTANT POOL              52
+CODE LENGTH               1,319
+
+
+GENERATION TIME      =        0.002 SECONDS      4 MB  24.5.6 r55090 LEX-LEG
+
+
+EXECUTION TIME       =        0.002 SECONDS      4 MB  24.5.6 r55090 LEX-LEG
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 20
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE OPF_trial Using NLP From line 226
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   OPF_trial           OBJECTIVE  z
+     TYPE    NLP                 DIRECTION  MINIMIZE
+     SOLVER  CONOPT              FROM LINE  226
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      2 Locally Optimal           
+**** OBJECTIVE VALUE              741.1306
+
+ RESOURCE USAGE, LIMIT          0.004      1000.000
+ ITERATION COUNT, LIMIT        40    2000000000
+ EVALUATION ERRORS              0             0
+CONOPT 3         24.5.6 r55090 Released Nov 27, 2015 LEG x86 64bit/Linux      
+ 
+ 
+    C O N O P T 3   version 3.17A
+    Copyright (C)   ARKI Consulting and Development A/S
+                    Bagsvaerdvej 246 A
+                    DK-2880 Bagsvaerd, Denmark
+ 
+ 
+ ** Warning **  The variance of the derivatives in the initial
+                point is large (= 4.2 ). A better initial
+                point, a better scaling, or better bounds on the
+                variables will probably help the optimization.
+ 
+ 
+                   Pre-triangular equations:   2
+                   Post-triangular equations:  37
+                   Definitional equations:     18
+ 
+ 
+ ** Optimal solution. Reduced gradient less than tolerance.
+ 
+ 
+ CONOPT time Total                            0.004 seconds
+   of which: Function evaluations             0.000 =  0.0%
+             1st Derivative evaluations       0.002 = 50.0%
+             Directional 2nd Derivative       0.000 =  0.0%
+ 
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- EQU obj                 .              .              .             1.0000      
+
+  obj  Maximum load the system can handle
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 21
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE OPF_trial Using NLP From line 226
+
+
+---- EQU ePbal  Real power balance at bus k
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+B1           .              .              .            -0.7395      
+B2           .              .              .            -0.7322      
+B3           .              .              .            -0.7373      
+B4           .              .              .            -0.7910      
+B5           .              .              .            -0.7356      
+B6           .              .              .            -0.7276      
+B7           .              .              .            -0.7328      
+B8           .              .              .            -0.7265      
+B9           .              .              .            -0.7260      
+B10          .              .              .            -0.7917      
+
+---- EQU eQbal  Reactive power balance at bus
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+B1           .              .              .             0.0305      
+B2           .              .              .             0.0337      
+B3           .              .              .             0.0253      
+B4           .              .              .             0.0084      
+B5           .              .              .             0.0326      
+B6           .              .              .             0.0352      
+B7           .              .              .             0.0280      
+B8           .              .              .             0.0341      
+B9           .              .              .             0.0206      
+B10          .              .              .             0.0084      
+
+---- EQU eVmag  Voltage magnitude
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+B1           .              .              .             0.0015      
+B2           .              .              .            -0.0664      
+B3           .              .              .             0.1023      
+B4           .              .              .             EPS         
+B5           .              .              .             EPS         
+B6           .              .              .             EPS         
+B7           .              .              .             EPS         
+B8           .              .              .             EPS         
+B9           .              .              .             EPS         
+B10          .              .              .             EPS         
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- EQU erefangle           .              .              .             EPS         
+
+  erefangle  Slack bus angle
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 22
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE OPF_trial Using NLP From line 226
+
+
+---- EQU sl_V  
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+B1          0.9908         0.9908         0.9908        -0.0031      
+B2          0.9358         0.9358         0.9358         0.1242      
+B3          0.8320         0.8320         0.8320        -0.1705      
+B4          0.8528         0.8528         0.8528         EPS         
+B5          1.0792         1.0792         1.0792         EPS         
+B6          1.0221         1.0221         1.0221         EPS         
+B7          0.8931         0.8931         0.8931         EPS         
+B8          0.8022         0.8022         0.8022         EPS         
+B9          0.8175         0.8175         0.8175         EPS         
+B10         0.7682         0.7682         0.7682         EPS         
+
+---- EQU sl_Pg  
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+B1        32.0371        32.0371        32.0371         0.7395      
+B2        13.5083        13.5083        13.5083         0.7322      
+B3         9.8482         9.8482         9.8482         0.7373      
+
+---- EQU sl_Qg  
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+B1        19.9460        19.9460        19.9460        -0.0305      
+B2         7.4072         7.4072         7.4072      9430.5600      
+B3         4.2164         4.2164         4.2164        -0.0253      
+
+---- EQU sl_Pl  
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+B4        30.2492        30.2492        30.2492        -0.7910      
+B8        22.7830        22.7830        22.7830        -0.7265      
+
+---- EQU sl_Ql  
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+B4          .              .              .              .          
+B8        18.0000        18.0000        18.0000         0.0341      
+
+---- EQU ePflow  
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+B1 .B5           .              .              .             EPS         
+B2 .B6           .              .              .             EPS         
+B3 .B7           .              .              .             EPS         
+B4 .B10          .              .              .             EPS         
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 23
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE OPF_trial Using NLP From line 226
+
+
+     EQU ePflow  
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+B5 .B1           .              .              .             EPS         
+B5 .B6           .              .              .             EPS         
+B6 .B2           .              .              .             EPS         
+B6 .B5           .              .              .             EPS         
+B6 .B7           .              .              .             EPS         
+B7 .B3           .              .              .             EPS         
+B7 .B6           .              .              .             EPS         
+B7 .B8           .              .              .             EPS         
+B7 .B9           .              .              .             EPS         
+B8 .B7           .              .              .             EPS         
+B9 .B7           .              .              .             EPS         
+B9 .B10          .              .              .             EPS         
+B10.B4           .              .              .             EPS         
+B10.B9           .              .              .             EPS         
+
+---- EQU eQflow  
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+B1 .B5           .              .              .             EPS         
+B2 .B6           .              .              .             EPS         
+B3 .B7           .              .              .             EPS         
+B4 .B10          .              .              .             EPS         
+B5 .B1           .              .              .             EPS         
+B5 .B6           .              .              .             EPS         
+B6 .B2           .              .              .             EPS         
+B6 .B5           .              .              .             EPS         
+B6 .B7           .              .              .             EPS         
+B7 .B3           .              .              .             EPS         
+B7 .B6           .              .              .             EPS         
+B7 .B8           .              .              .             EPS         
+B7 .B9           .              .              .             EPS         
+B8 .B7           .              .              .             EPS         
+B9 .B7           .              .              .             EPS         
+B9 .B10          .              .              .             EPS         
+B10.B4           .              .              .             EPS         
+B10.B9           .              .              .             EPS         
+
+---- VAR Vr  Bus voltage(real part)
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+B1         -INF            0.9908        +INF             .          
+B2         -INF            0.9293        +INF             .          
+B3         -INF            0.7496        +INF             .          
+B4         -INF            0.5579        +INF             .          
+B5         -INF            1.0772        +INF             .          
+B6         -INF            1.0059        +INF             .          
+B7         -INF            0.7691        +INF             .          
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 24
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE OPF_trial Using NLP From line 226
+
+
+     VAR Vr  Bus voltage(real part)
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+B8         -INF            0.6460        +INF             .          
+B9         -INF            0.6399        +INF             .          
+B10        -INF            0.5263        +INF             .          
+
+---- VAR Vi  Bus voltage(imaginary part)
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+B1         -INF             .            +INF             .          
+B2         -INF           -0.1050        +INF             .          
+B3         -INF           -0.3630        +INF             .          
+B4         -INF           -0.6467        +INF             .          
+B5         -INF           -0.0667        +INF             .          
+B6         -INF           -0.1813        +INF             .          
+B7         -INF           -0.4557        +INF             .          
+B8         -INF           -0.4775        +INF             .          
+B9         -INF           -0.5104        +INF             .          
+B10        -INF           -0.5612        +INF             .          
+
+---- VAR Vmag  Voltage magnitude at a bus
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+B1          0.7000         0.9908         1.1500          .          
+B2          0.7000         0.9352         1.1500          .          
+B3          0.7000         0.8329         1.1500          .          
+B4          0.7000         0.8541         1.1500          .          
+B5          0.7000         1.0792         1.1500          .          
+B6          0.7000         1.0221         1.1500          .          
+B7          0.7000         0.8940         1.1500          .          
+B8          0.7000         0.8033         1.1500          .          
+B9          0.7000         0.8186         1.1500          .          
+B10         0.7000         0.7694         1.1500          .          
+
+---- VAR Pg  Real power generation at a bus
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+B1         0.1000        32.0359        50.0000          .          
+B2         0.1000        13.5071        50.0000          .          
+B3         0.1000         9.8470        30.0000          .          
+
+---- VAR Qg  Reactive power generation at a bus
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+B1       -99.9900        19.9460        99.9900          .          
+B2        -2.0000         7.2500         7.2500     -9430.5937      
+B3        -2.0000         4.2164         7.0000          .          
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 25
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE OPF_trial Using NLP From line 226
+
+
+---- VAR Pl  Real power load at a bus
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+B4        15.1246        30.2496        45.3738          .          
+B8        11.3915        22.7834        34.1745          .          
+
+---- VAR Ql  Reactive power load at a bus
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+B4          .              .              .             0.0084      
+B8         9.0000        18.0000        27.0000          .          
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- VAR z                 -INF          741.1306        +INF             .          
+
+  z  Maximum loading in the system
+
+---- VAR Pflow  
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+B1 .B5         -INF           32.0359        +INF             .          
+B2 .B6         -INF           13.5071        +INF             .          
+B3 .B7         -INF            9.8470        +INF             .          
+B4 .B10        -INF          -30.2496        +INF             .          
+B5 .B1         -INF          -32.0359        +INF             .          
+B5 .B6         -INF           32.0359        +INF             .          
+B6 .B2         -INF          -13.5071        +INF             .          
+B6 .B5         -INF          -32.0359        +INF             .          
+B6 .B7         -INF           45.5429        +INF             .          
+B7 .B3         -INF           -9.8470        +INF             .          
+B7 .B6         -INF          -44.5952        +INF             .          
+B7 .B8         -INF           22.7834        +INF             .          
+B7 .B9         -INF           31.6588        +INF             .          
+B8 .B7         -INF          -22.7834        +INF             .          
+B9 .B7         -INF          -31.6588        +INF             .          
+B9 .B10        -INF           31.6588        +INF             .          
+B10.B4         -INF           30.2496        +INF             .          
+B10.B9         -INF          -30.2496        +INF             .          
+
+---- VAR Qflow  
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+B1 .B5         -INF          -41.4649        +INF             .          
+B2 .B6         -INF          -17.0299        +INF             .          
+B3 .B7         -INF           -7.6292        +INF             .          
+B4 .B10        -INF           81.0541        +INF             .          
+B5 .B1         -INF           47.2364        +INF             .          
+B5 .B6         -INF           17.2947        +INF             .          
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 26
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE OPF_trial Using NLP From line 226
+
+
+     VAR Qflow  
+
+               LOWER          LEVEL          UPPER         MARGINAL
+
+B6 .B2         -INF           19.5418        +INF             .          
+B6 .B5         -INF          -12.7430        +INF             .          
+B6 .B7         -INF           23.7877        +INF             .          
+B7 .B3         -INF            9.0463        +INF             .          
+B7 .B6         -INF           -5.5914        +INF             .          
+B7 .B8         -INF           26.5310        +INF             .          
+B7 .B9         -INF           23.3475        +INF             .          
+B8 .B7         -INF          -21.6377        +INF             .          
+B9 .B7         -INF          -17.1736        +INF             .          
+B9 .B10        -INF            5.9466        +INF             .          
+B10.B4         -INF          -71.8198        +INF             .          
+B10.B9         -INF           -1.2544        +INF             .          
+
+---- VAR sv  
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+B1         -0.0100   1.5268300E-5         0.0100   2.2187473E-8      
+B2         -0.0100        -0.0006         0.0100          .          
+B3         -0.0100         0.0009         0.0100          .          
+B4         -0.0500         0.0013         0.0500          .          
+B5         -0.0500   4.0373762E-5         0.0500          .          
+B6         -0.0500   -3.887821E-5         0.0500          .          
+B7         -0.0500         0.0009         0.0500          .          
+B8         -0.0500         0.0011         0.0500          .          
+B9         -0.0500         0.0011         0.0500          .          
+B10        -0.0500         0.0012         0.0500          .          
+
+---- VAR spg  
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+B1        -3.2037        -0.0012         3.2037          .          
+B2        -1.3508        -0.0012         1.3508         EPS         
+B3        -0.9848        -0.0012         0.9848         EPS         
+
+---- VAR sqg  
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+B1        -1.9946   5.0820814E-7         1.9946         EPS         
+B2        -0.7407        -0.1572         0.7407          .          
+B3        -0.4216   4.2173643E-7         0.4216         EPS         
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 27
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE OPF_trial Using NLP From line 226
+
+
+---- VAR spl  
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+B4        -1.5125         0.0004         1.5125          .          
+B8        -1.1392         0.0004         1.1392         EPS         
+
+---- VAR sql  
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+B4          .              .              .             EPS         
+B8        -0.9000   -3.410256E-5         0.9000         EPS         
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+                             0     ERRORS
+GAMS 24.5.6  r55090 Released Nov 27, 2015 LEX-LEG x86 64bit/Linux                                                                                                                                                                     11/05/18 17:12:49 Page 28
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+E x e c u t i o n
+
+
+EXECUTION TIME       =        0.002 SECONDS      3 MB  24.5.6 r55090 LEX-LEG
+
+
+USER: Department of Electrical Engineering           G141107:1022AO-LNX
+      Indian Institute of Technology Bombay                     DC11372
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      /home/aditya/Desktop/gams_code/14busopf_slack.gms
+Output     /home/aditya/Desktop/gams_code/14busopf_slack.lst

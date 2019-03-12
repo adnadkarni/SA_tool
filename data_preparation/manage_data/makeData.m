@@ -43,7 +43,7 @@ for i=1:numPMU
 end
 
 yOut.namePMU = yOut.namePMU';
-yOut.indexTime = db.time(1:Yp.numSampPerHour,1);
+yOut.indexTime = db.time(1:Yp.numSampPerHour,hr);
 
 %% Downsample dataset and update the parameters
 yOut.val = downsample(yOut.val,Yp.rateDownsample);                          % downsample data

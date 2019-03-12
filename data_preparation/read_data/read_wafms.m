@@ -9,7 +9,7 @@ for i=2:size(fdata,2)
     db.fr{i-1,1} = fdata(:,i);
 end
 db.pmu_name = {'Mumbai', 'Kanpur', 'Kharagpur', 'Guwahati', 'Surathkal', 'Delhi'};
-db.tstmp = gps2utc(fdata(:,1));
+db.time = gps2utc(fdata(:,1));
 
 
 % plot dataset

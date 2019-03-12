@@ -6,7 +6,7 @@ switch db_select
         [ db ] = read_pgcil10bus( pth );  
     case 2
         pth = '/media/aditya/Data/PMU_Data/PGCIL_DATA_7days';
-        [ db ] = read_pgcil7day( pth, 92, 12 );
+        [ db ] = read_pgcil7day( pth, [92,93,104,107], 12 );
     case 3
         pth = '/media/aditya/Data/PMU_Data/PGCIL_5hr';
         pmu_list = [21;50;51;53;54;92;93;95;96;104;107;729;733;804];

@@ -17,7 +17,7 @@ for i=1:length(ySt)
         if (~isempty(ySt{i}{j}.magSpikeZmod))
             
             tDiff = ySt{i}{j}.indexEndTime - ySt{i}{j}.indexTimeSpikeZmod;  % how much long ago the spikes were detected
-            ySt{i}{j}.magSpikeZmod(tDiff > seconds(3),:) = [];                   % remove already detected spike record
+            ySt{i}{j}.magSpikeZmod(tDiff > seconds(60),:) = [];                   % remove already detected spike record
             
             if (~isempty(ySt{i}{j}.magSpikeZmod))
                 [yOut.maxSpike(j,:)] =...
@@ -40,7 +40,7 @@ for i=1:length(ySt)
             
             tDiff = ySt{i}{j}.indexEndTime - ...
                                          ySt{i}{j}.indexTimeLevelChange;    % how much long ago the spikes were detected
-            ySt{i}{j}.magLevelChange(tDiff > minutes(3),:) = [];            % remove already detected spike record
+            ySt{i}{j}.magLevelChange(tDiff > minutes(1),:) = [];            % remove already detected spike record
             
             if (~isempty(ySt{i}{j}.magLevelChange))
                 yOut.maxLevelChange(j,:) = ...

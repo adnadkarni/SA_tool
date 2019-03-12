@@ -1,4 +1,4 @@
-function [ yOut ] = TnLStatistics( yIn, yPara )
+function [ yOut, yIn ] = TnLStatistics( yIn, yPara )
 % This function calculates various trend-filtering derived statistics for
 % the time series block
 
@@ -96,6 +96,9 @@ yOut.magLevel = yIn.W(yOut.indexEndOfLevelSeg(2:end),:);                    % un
 
 yOut.magLevelChange = yIn.Fw(changePtsLevel,:);                             % level change in units
 
+% Readjust level fit
+
+%[yIn.W] = reAdjustLevel(yOut.indexEndOfLevelSeg, yIn.W );
 
 %% Calculate residual statistics
 

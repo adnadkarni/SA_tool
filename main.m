@@ -29,10 +29,10 @@ addpath(genpath('/home/aditya/Desktop/SA_tool/plot_functions'));
 
 global selectDB;
 global db;
-selectDB = 1;
+selectDB = 2;
 
 % read dataset
-% [ db ] = read_db( selectDB );
+%   [ db ] = read_db( selectDB );
 
 %% Parameter input
 
@@ -51,6 +51,8 @@ for hr = 1:size(dataIn,2)
     
     [ yPara, yDataloss ] = scanDataloss( yData, yPara);
     
+    [ yData ] = imputeData( yData, yPara, yDataloss);
+    
     % Run T&L filtering----------------------------------------------------
     
     if (yPara.statusTF)
@@ -65,7 +67,7 @@ for hr = 1:size(dataIn,2)
     
     %% Get signature thresholds
 
-    [thrMine] = getThr4Mine(1);
+    [thrMine] = getThr4Mine(2);
 
     %% Get all mining results
    

@@ -1,25 +1,26 @@
-function plotExtrapolate(M1, M4)
+function plotExtrapolate(yTr, yCP, yPara)
 
 figure(1)
     
-    plot(M1.t_indx, M1.val(:,M4.selectTs), 'LineWidth',1, 'DisplayName', 'measurement');
+    plot(yTr.indexTime, yTr.val(:,yCP.selectTS), 'LineWidth',1, 'DisplayName', 'measurement');
     hold on;
     
     
-    plot(M1.t_indx, M1.X(:,M4.selectTs), 'k', 'LineWidth',2, 'DisplayName', 'trend-fit');
-    tAhead = (M4.tstampAhead + M1.t_indx(end));
+%     plot(yTr.indexTime, yTr.X(:,yCP.selectTS), 'k', 'LineWidth',2, 'DisplayName', 'trend-fit');
+     tAhead = yTr.indexTime(end) + seconds(yCP.tstampAhead) ;
     
-    plot(tAhead, M4.yAhead(:,M4.selectTs),'--k','LineWidth',2,  'DisplayName', 'predicted course');
-    tAll = [M1.t_indx;tAhead];
+    plot(tAhead, yCP.yAhead(:,yCP.selectTS),'--','LineWidth',2,  'DisplayName', 'predicted course');
+    tAll = [yTr.indexTime;tAhead];
     
-    h = plot(tAll,ones(length(tAll),2)*diag(M4.limitMaxMin),'-.r','LineWidth',1);
+    h = plot(tAll,ones(length(tAll),2)*diag([yPara.limitMax, yPara.limitMin]),'-.r','LineWidth',1);
     set(h,{'DisplayName'}, {'max. loading limit'; 'min loading limit'});
     
-    plot([M1.t_indx(end),M1.t_indx(end)],[1.1*M4.limitMaxMin(1), 1.1*M4.limitMaxMin(2)], '-.k',...
-        'DisplayName', 'prediction start');
+   plot([yTr.indexTime(end),yTr.indexTime(end)],[1.01*yPara.limitMax,...
+                (1-0.01*sign(yPara.limitMin))*yPara.limitMin], '-.k',...
+                'DisplayName', 'prediction start');
     
     set(gca,'Fontsize',12);
-    ylim([1.2*M4.limitMaxMin(1), 1.2*M4.limitMaxMin(2)]); 
+    ylim([(1-0.02*sign(yPara.limitMin))*yPara.limitMin 1.02*yPara.limitMax ]); 
     xlim([tAll(1), tAll(end)]);
     ylabel('Line loading (MW)');
     xlabel('time (sec)');
@@ -27,13 +28,14 @@ figure(1)
     
     
     % add text to the plot
-    text(M1.t_indx(1)*ones(1,length(M4.selectTs)),2*M1.val(1,M4.selectTs),...
-        M1.name(M4.selectTs), 'FontSize', 12); % line name
-    text(0.57*M1.t_indx(end),0.9*M4.limitMaxMin(2),'start prediction \rightarrow',...
-        'FontSize', 10); % prediction instant
-    text(M1.t_indx(1), 1.1*M4.limitMaxMin(1), 'Max. limit (rev)', 'FontSize',...
-        10, 'Color', 'red' ); % min limit
-    text(M1.t_indx(1), 1.1*M4.limitMaxMin(2), 'Max. limit', 'FontSize', 10,...
-        'Color', 'red' ); % max limit
+    legend(yTr.nameTS(yCP.selectTS), 'FontSize' , 8, 'Position', [0.82 0.63 0.15 0.25]);
+%    text(yTr.indexTime(1)*ones(1,length(yCP.selectTS)),2*yTr.val(1,yCP.selectTS),...
+%        yTr.nameTS(yCP.selectTS), 'FontSize', 12); % line name
+%     text(0.57*yTr.indexTime(end),0.9*yPara.limitMin,'start prediction \rightarrow',...
+%         'FontSize', 10); % prediction instant
+%     text(yTr.indexTime(1), 1.1*yPara.limitMax, 'Max. limit (rev)', 'FontSize',...
+%         10, 'Color', 'red' ); % min limit
+%     text(yTr.indexTime(1), 1.1*yPara.limitMin, 'Max. limit', 'FontSize', 10,...
+%         'Color', 'red' ); % max limit
     grid on;
 end

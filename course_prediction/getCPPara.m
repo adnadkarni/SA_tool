@@ -15,7 +15,7 @@ limitMin = 0.9*[400e3/sqrt(3); 1; 1; 1; 1; 1; 1; 1; 1; 1];
         
 %% Forecast horizon
         
-numTAhead = [600; 60; 60; 60; 60; 60; 60; 60; 60; 60];                      % in seconds
+numTAhead = [300; 60; 60; 60; 60; 60; 60; 60; 60; 60];                      % in seconds
 
 
 %% vector of thresholds for prediction
