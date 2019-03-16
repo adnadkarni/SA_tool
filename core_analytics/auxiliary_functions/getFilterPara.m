@@ -22,7 +22,7 @@ dims = [1 55];
 
 %% default input
 
-defInput{1} = {'1', '0.04', '25',   '5' , '100' , '100', '22000', '5' };  % pgcil trend
+defInput{1} = {'1', '0.04', '25',   '5' , '100' , '50', '22000', '5' };  % pgcil trend
 defInput{2} = {'1', '0.04', '5',   '3' , '500' , '10', '90000', '60' };  % pgcil 7 day
 defInput{7} = {'1', '0.04', '1',   '1/120' , '100' , '100', '7500', '5' };  % pgcil trend
 defInput{8} = {'1', '0.04', '125', '15' , '250' , '100', '86800', '60' };  % getco trend
@@ -43,7 +43,7 @@ y.numSecSlide = in(8);                                                     % sli
  
 %% Select time-series to be filtered
 
-selectTs{1} = [133:140];%[30:40];%[1:size(db.pmu_name,1)];                             % for PGCIL 10 bus;
+selectTs{1} = [53:56,84,137];%[133:140];%[34,35];%[1:size(db.pmu_name,1)];                             % for PGCIL 10 bus;
 selectTs{2} = [4,8,12,16];
 selectTs{9} = [1:6];                                                        % for frequency data
 selectTs{8} = [3:8];                                                        % for adani400

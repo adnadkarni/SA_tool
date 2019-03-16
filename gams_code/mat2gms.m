@@ -1,4 +1,4 @@
-function [ M2G ] = mat2gms_operative_slack( G_n,B_n,Yf,Yt,NT,mpc_base)
+function [ M2G ] = mat2gms( G_n, B_n, Yf, Yt, NT, mpc_base)
 %% Input data
 %--------------------------------------------------------------------------
 % Set definition-----------------------------------------------------------

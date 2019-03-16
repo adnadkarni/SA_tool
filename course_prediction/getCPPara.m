@@ -25,5 +25,6 @@ yOut.thDurPred = thDurPred(yPara.selectVar);
 yOut.limitMax = limitMax(yPara.selectVar);
 yOut.limitMin = limitMin(yPara.selectVar);
 yOut.numTAhead = numTAhead(yPara.selectVar);
+yOut.numMinWin = 3;
 end
 

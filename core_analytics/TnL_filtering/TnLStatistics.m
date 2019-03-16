@@ -28,6 +28,8 @@ yOut.durTrendSeg = (lengthTrendSeg)*(yPara.rateFrame);                      % du
 
 yOut.magTrend = yIn.Fx(yOut.indexEndOfTrendSeg(2:end)-1,:)*60;              % unit/min , Fx is already in per second
 
+yOut.numTrendSeg = length(lengthTrendSeg);                                  % number of trend segments formed
+
 % Calculate weighted trend
 
 for i=1:length(yIn.nameTS)
@@ -85,6 +87,10 @@ yOut.indexTimeLevelChange = yIn.indexTime(changePtsLevel+1);                % ti
 
 yOut.indexEndOfLevelSeg = [1;changePtsLevel+1;yPara.numSampWin];            % store ends of trend segment
 
+% Readjust level fit
+
+[yIn.W] = reAdjustLevel(yOut.indexEndOfLevelSeg, yIn.val );
+
 % Identify level magnitude and duration
 
 lengthLevelSeg = diff(yOut.indexEndOfLevelSeg);                             % number of frames in each trend segment
@@ -96,15 +102,16 @@ yOut.magLevel = yIn.W(yOut.indexEndOfLevelSeg(2:end),:);                    % un
 
 yOut.magLevelChange = yIn.Fw(changePtsLevel,:);                             % level change in units
 
-% Readjust level fit
-
-%[yIn.W] = reAdjustLevel(yOut.indexEndOfLevelSeg, yIn.W );
-
 %% Calculate residual statistics
 
 % yOut.res_mean = mean(yIn.U);                                                
 % 
-% yOut.res_std = std(yIn.U);
+yOut.resSigmaByMu = 100*std(yIn.U)/(1+mean(yIn.U));
+yOut.resSigma = std(yIn.U);
 
+for i=1:size(yIn.U,2)
+    yStd = (yIn.U(:,i)-mean(yIn.U(:,i)))/std(yIn.U(:,i));
+    yOut.statusChi(i,:) = vartest(yStd, 1);
+end
 end
 

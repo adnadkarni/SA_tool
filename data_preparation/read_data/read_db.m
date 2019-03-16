@@ -30,6 +30,7 @@ switch db_select
     case 8
         load ('/media/aditya/Data/PMU_Data/adani400_data.mat');
         db = adani400;
+        db.time = duration(0,0,0:0.04:length(db.P{1})*0.04-0.04)';
         clearvars adani400;
         
     case 9

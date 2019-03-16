@@ -2,11 +2,22 @@ function [ yTnL, yStat, yCP ] = TnLFilterScheme( yData, yPara )
 %This function executes various trend filtering functions and returns
 %various trend statistics.
 
-%% preparation
+%% Variable declaration
+
 numWin = 1;
 yTnL = cell(1,1);
 statusCP = 0;
-CPPara = getCPPara(yPara);                                              % get course prediction thresholds
+statusControl = 0;
+
+%% Static parameters
+
+if (statusCP==1)
+    paraCP = getCPPara(yPara);                                                  % get course prediction thresholds
+end
+
+if (statusControl==1)
+    paraControl = getControlPara();
+end
 
 %% scan with sliding window
 
@@ -41,19 +52,25 @@ for count = yPara.numSampWin:yPara.numSampSlide:yPara.numSampDataset%Yi.win_sz
     if (~isempty(yTnL{numWin}.X) && statusCP)                               % wait for 3 samples to ascertain trend
         
         [yCP{numWin}.selectTS, flagCP(numWin,1)]...
-                                  = checkCP(yStat{numWin}, CPPara);         % get the trend status for prediction start
-                 
-        if (numWin >= 3)
+            = checkCP(yStat{numWin}, paraCP);                               % get the trend status for prediction start
+        
+        if (numWin >= paraCP.numMinWin)
             
-            if (sum(flagCP(numWin-2:numWin)) == 3)
+            if (sum(flagCP(numWin-2:numWin)) == paraCP.numMinWin)
                 
                 [yCP{numWin}] = runCP(yTnL{numWin}, yStat{numWin},...
-                                                   yCP{numWin}, CPPara);    % extrapolate trends if trigger is set
-            
-            end           
+                    yCP{numWin}, paraCP);                                   % extrapolate trends if trigger is set
+                
+            end
         end
     else
         yCP{numWin} = [];
+    end
+    
+    %% Run control scheme (GAMS)
+    
+    if (~isempty(yCP{numWin}) && statusControl)
+       [tmp] = runControl(yCP{numWin}, paraControl);
     end
     
     %% End of trend filtering

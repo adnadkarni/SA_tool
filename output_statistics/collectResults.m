@@ -12,19 +12,27 @@ for i=1:length(ySt)
         yOut.wtdTrend(j,:) = ySt{i}{j}.wtdTrend';
         yOut.lastSegTrend(j,:) = ySt{i}{j}.magTrend(end,:);
         yOut.durLastSegTrend(j,:) = ySt{i}{j}.durTrendSeg(end,:);
+        yOut.numTrendSeg(j,:) = ySt{i}{j}.numTrendSeg;
+        yOut.resSigma(j,:) = ySt{i}{j}.resSigma;
+        yOut.statusChi(j,:) = ySt{i}{j}.statusChi;
         
         %% Spike statistics
         if (~isempty(ySt{i}{j}.magSpikeZmod))
             
             tDiff = ySt{i}{j}.indexEndTime - ySt{i}{j}.indexTimeSpikeZmod;  % how much long ago the spikes were detected
-            ySt{i}{j}.magSpikeZmod(tDiff > seconds(60),:) = [];                   % remove already detected spike record
+            ySt{i}{j}.magSpikeZmod(tDiff > seconds(15),:) = [];                   % remove already detected spike record
+            ySt{i}{j}.indexTimeSpikeZmod(tDiff > seconds(15),:) = [];              % remove already detected spike index
+            
             
             if (~isempty(ySt{i}{j}.magSpikeZmod))
-                [yOut.maxSpike(j,:)] =...
-                    findMaxAbs(ySt{i}{j}.magSpikeZmod);
+                [yOut.maxSpike(j,:)] = findMaxAbs(ySt{i}{j}.magSpikeZmod);
+                yOut.magSpike{j,1} = ySt{i}{j}.magSpikeZmod;
+                yOut.indexSpike{j,1} = ySt{i}{j}.indexTimeSpikeZmod;
             else
                 yOut.maxSpike(j,:) = 0;
 %                yOut.indexMaxSpike(j,:) = 0;
+                yOut.magSpike{j,1} = nan;
+                yOut.indexSpike{j,1} = nan;
             end
         else
             yOut.maxSpike(j,:) = 0;
